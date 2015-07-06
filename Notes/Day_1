@@ -1,0 +1,72 @@
+Day 1: "Data, data ..." activity
+================================
+Activity: Come up with many impactful questions about the data
+
+Step 1: Recently moved to new city, which doctor should I see with some specialty here?
+
+Step 2: Wish list of data (what do I want to have?)
+e.g. doctor directory, Medicare, Insurance, Yelp
+
+Step 3: Get data (say from www.yelp.com)
+
+
+
+Ideas + data
+------------
+
+1. How good is each city for bike sharing? (Mike, Shane, Peter)
+
+2. In which hospital should you have your baby? (Dan, Nicole, Saran)
+	- geography
+	- insurance
+	- ratings from patients (US News)
+	- delivery stats. (database about adverse events in hospitals)
+	- happy baby face posts on facebook, twitter
+
+3. How good is the emergeny service? (Derrick, Alexis, Bin)
+	- Information about the patient arriving at the hospital 
+	- time from 911 call to arrival (e.g. NYC)
+	- other first responders
+	- education background and years of experience
+	- price
+	- tiers of emergency resoponse
+
+4. What neighborhood should I move in a city to maximize personal health? (Gaurev, Kyle, Kritie)
+	- hospital patient rates
+	- avergage acces to healty food (farmer's markets, ...)
+	- health behavior of people around (strava data: biking and running data)
+	- census data
+	- sentiment analysis on twitter, facebook, ...
+	- google maps to find geographical data and visualization
+
+5. Where to go to vacation, and when to avoid seasonal allergy? (Joe, Andrew, Greg)
+	- pollen data
+	- weather data for prediction (NOAA)
+	- record of allergy drug  purchases for trend analysis
+
+6. Which drug can be used for diseases other than it is approved for? (Aqeel, Jing, Yachung)
+	- list of all approved drugs (drub banks)
+	- patient data (to look for mutiple diseases) (! hard to get) ("patients like me" website, "ask a patient" website)
+	- data about side effects (which may be the desired effect for another disorder)
+	- 
+
+7. Can we predict hospital readmission to aid in the discharge descisions? (Nick, Ting, Dennis)
+	- patients' physiology data (EEG, ECG, MRI)
+	- NLP of anecdotal information from patients
+	- information about the different units in a hospital
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
