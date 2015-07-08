@@ -83,6 +83,8 @@ Data wish list:
 Data:
 ?????
 
+!!! This is not an issue for blind people, and buzzing street lights actually have a negative effects on the learning of newly blind people.
+
 
 Radiation dosage during flights
 -------------------------------
@@ -115,7 +117,9 @@ Data wish list:
 - scanned painting database
 
 Data:
-?????
+http://www.wga.hu/
+! Similar project!
+http://www.wga.hu/ (same location as data) 
 
 
 Hours of sunlight in an apartment
@@ -123,12 +127,36 @@ Hours of sunlight in an apartment
 Question to answer:
 - When will the sun shine through my window in my apartment at a given hour of a given day of the year?
 
+Seeling point: 
+- for people who need a lot of sunlight for psychological reasons
+- for anyone wanting to wake up for natural light in the morning
+- for people who like to have plants with high light need in their aparment
+
 Data wishlist:
 - height data of buildings
 - climate data
 
 Data:
-????
+- ground elevation
+https://developers.google.com/maps/documentation/elevation/
+- building map and height data
+http://inasafe.org/en/developer-docs/osm_building_downloads.html
+http://overpass-turbo.eu/
+http://wiki.flightgear.org/OpenStreetMap_buildings
+http://overpass-api.de/output_formats.html
+http://download.geofabrik.de/
+http://learnosm.org/en/osm-data/
+http://wiki.openstreetmap.org/wiki/API_v0.6
+http://wiki.openstreetmap.org/wiki/Simple_3D_Buildings
+https://help.openstreetmap.org/questions/18751/extract-building-coordinates-from-osm-xml-polygons
+https://github.com/kekscom/osmbuildings
+- sun's position vs location and day
+https://en.wikipedia.org/wiki/Position_of_the_Sun
+
+Tools:
+- osm2xml export (either the API, or sth other)
+- beautifulsoup to parse xml in python
+
 
 
 Breakdown of the price of a certain product/produce
