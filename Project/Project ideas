@@ -1,0 +1,161 @@
+Project ideas
+=============
+
+
+
+Vaccination at schools
+----------------------
+Question to answer:
+- Which schools are safe for a child who cannot be vaccinated for a certain disease?
+
+Data wish list:
+- School vaccination rates for different communicatable diseases
+- herd immunity treshold for different diseases
+
+
+Sources: 
+- Herd immunity threshold data:
+http://www.bt.cdc.gov/agent/smallpox/training/overview/pdf/eradicationhistory.pdf
+- list of reported diseases:
+https://www.cdph.ca.gov/pubsforms/forms/CtrldForms/cdph286.pdf
+http://ochealthinfo.com/civicax/filebank/blobdload.aspx?BlobID=13145
+- California school immunatization data:
+http://www.cdph.ca.gov/programs/immunize/pages/immunizationlevels.aspx
+- Vermont school immunization data:
+http://www.healthvermont.gov/hc/imm/ImmSurv.aspx
+- coverage rates:
+http://www.cdc.gov/vaccines/imz-managers/coverage/index.html
+
+
+! Similar project:
+http://spreadsheets.latimes.com/immunization-levels-california/
+
+
+
+
+
+
+Heatlh effect of airports
+-------------------------
+Question to answer:
+- Do people near airports are more exposed to certain medical conditions? 
+- Do they need to take certain drugs more prevalently?
+
+
+Data wish list:
+- drug prescriptions by area
+- drug perscription by income brackets
+- income bracket by area
+(- mortality rate by area)
+
+Data:
+- mortality:
+http://ahrf.hrsa.gov/categories.htm#3
+- drug prescription
+http://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Medicare-Provider-Charge-Data/index.html
+- income vs residential area
+http://www.irs.gov/uac/SOI-Tax-Stats-Individual-Income-Tax-Statistics-ZIP-Code-Data-%28SOI%29
+
+
+Scheduling dental checkups
+--------------------------
+Question to answer:
+- When should the next <<compulsury>> dental checkup be scheduled?
+
+Data wish list:
+- dental patient history
+- correlations between adverse events and times from last checkup
+
+Data:
+?????
+
+
+How safe is a city for a blind person?
+--------------------------------------
+Question to answer:
+- Which city/neighborhood is most blind-friendly?
+- Where should a blind person live to be able to walk everywhere?
+
+Data wish list:
+- location of beeping pedestrian traffic lights
+- location of ridged walk tiles for blind
+
+Data:
+?????
+
+
+Radiation dosage during flights
+-------------------------------
+Question to answer:
+- How much radiation (how dangerous amount of radiation) dose does someone gets during a given flight?
+
+Data wish list:
+- flight coordiantes with altitude data
+- amount of ionizing radiation vs altitute
+- Sun's activity data
+- seasonal and geographical distribution of high atmospheric radiation
+
+Data:
+- simple route data (no altitute)
+http://openflights.org/data.html
+- flight data with altitude (3 usd, behind paywall)
+https://www.flightradar24.com/premium/
+
+! Solved problem !
+Solution:
+http://jag.cami.jccbi.gov/cariprofile.asp
+
+
+Painting recommendation system
+------------------------------
+Questions to answer:
+- Given a certain picture of a painting, or some preferences on attributes, which other pictures are similar?
+
+Data wish list:
+- scanned painting database
+
+Data:
+?????
+
+
+Hours of sunlight in an apartment
+---------------------------------
+Question to answer:
+- When will the sun shine through my window in my apartment at a given hour of a given day of the year?
+
+Data wishlist:
+- height data of buildings
+- climate data
+
+Data:
+????
+
+
+Breakdown of the price of a certain product/produce
+---------------------------------------------------
+Question to answer:
+- Which fraction of the consumer price of a product goes to whom?
+
+
+Data wishlist:
+- country of origin of the product
+- price of the product in the origin country
+- trade routes
+- shipping costs
+- list of companies involved
+- avg. profit margin of different group of companies
+- tax regulations for each country
+
+
+
+Data:
+?????
+
+
+
+
+
+
+
+
+
