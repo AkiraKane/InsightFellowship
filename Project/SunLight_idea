@@ -1,0 +1,98 @@
+SunLight project idea
+=====================
+
+Question to answer:
+-------------------
+- When will the sun shine through my window in my apartment at a given hour of a given day of the year?
+
+Selling point: 
+--------------
+- for people who need a lot of sunlight for psychological reasons
+- for anyone wanting to wake up for natural light in the morning
+- for people who like to have plants with high light need in their aparment
+
+Data wishlist:
+--------------
+- height data of buildings
+- climate data
+
+Data:
+-----
+- ground elevation
+https://developers.google.com/maps/documentation/elevation/
+- building map and height data
+http://inasafe.org/en/developer-docs/osm_building_downloads.html
+http://overpass-turbo.eu/
+http://wiki.flightgear.org/OpenStreetMap_buildings
+http://overpass-api.de/output_formats.html
+http://download.geofabrik.de/
+http://learnosm.org/en/osm-data/
+http://wiki.openstreetmap.org/wiki/API_v0.6
+http://wiki.openstreetmap.org/wiki/Simple_3D_Buildings
+https://help.openstreetmap.org/questions/18751/extract-building-coordinates-from-osm-xml-polygons
+https://github.com/kekscom/osmbuildings
+- sun's position vs location and day
+https://en.wikipedia.org/wiki/Position_of_the_Sun
+
+Tools:
+------
+- osm2xml export (either the API, or sth other)
+- beautifulsoup to parse xml in python
+
+
+Slides:
+-------
+1. 
+	Problem:
+		- How much sunlight does a given apartment (or office) get in Manhattan?
+		- subproblems: 
+			+ During what ours does the sun shine through the window?
+			+ How much sun does the place get thoughout the year? (hours + power)
+	Format:
+		- web app
+		- input 1: address
+		- output 1: top view of the building and its immediate environment
+		- input 2: user selects the facade (dropdown, or click)
+
+
+2. 
+	Data description:
+		- OpenStreetMap data stored in OSM files
+		- can be exported to XML
+		- building geometries are stored as nodes with "building" key
+		- buildings in Manhattan are all accessible
+		- Sun's position on the sky from Wikipedia formula
+	Graph:
+		- plot of Sun's position
+		- plot of buildings siluette
+		- planB: screenshot from 
+		http://osmbuildings.org/?lat=40.78251&lon=-73.96590&zoom=15
+
+
+3.
+	Methods/Steps:
+		- Convert OSM to XML
+		- use beautifulsoup to parse XML
+		- store it in SQL database
+		- for building, floor, facade of building and day, set by the user, 
+			+ display Sun's path
+			+ display siluette of building blocking the view
+			+ calculate sunlight vs minutes
+			+ plot radiation power as a function of time
+		- create summaries for around the year for a single location
+			+ total sunlight compared and maximum vs days of the year
+
+TODO list:
+----------
+--OK-- 1. Fetch 3D building data of Manhattan
+--OK-- 2. Save it in XML locally
+3. Parse XML with beautifulsoup
+4. Save parsed data to SQL database
+5. Figure out GPS coordinates from address
+6. Write queries: Address -> building in SQL database
+7. Floor number + orientation -> height
+8. Calculate the Sun's position for each minute of the day
+9. For each position of the Sun, loop through the buildings which are only in the line of sight in top-view
+10. Check if any of the facets of the building is in the way of the Sun
+
+

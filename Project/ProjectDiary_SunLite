@@ -1,0 +1,131 @@
+Diary of SunLight project development
+=====================================
+
+Day 1 - Jul 07
+--------------
+I wanted to use Google maps data to predict the time of sunlight in different apartments near highrises.
+
+Day 2 - Jul 08
+--------------
+Google doesn't share height data of buildings, only ground elevation.
+[https://developers.google.com/maps/documentation/elevation/]
+
+I found OpenStreetMap data, which has building height data.
+[http://wiki.openstreetmap.org/wiki/Main_Page]
+
+Manhattan is fully char
+
+Andrew suggested a health oriented selling point. People who need sunlight due to psychological reasons can check how much sunlight they will get in their apartment/office throughout the day and year before even visiting the place.
+
+I found the Overpass API
+[http://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide]
+
+Day 3 - Jul 09
+--------------
+I found a working call to Overpass API, that downloads an XML.
+[http://inasafe.org/en/developer-docs/osm_building_downloads.html]
+>>> http://overpass-api.de/api/interpreter?data=(node["building"="yes"](-6.185440796831979,106.82374835014343,-6.178966266481431,106.83127999305725);way["building"="yes"](-6.185440796831979,106.82374835014343,-6.178966266481431,106.83127999305725);relation["building"="yes"](-6.185440796831979,106.82374835014343,-6.178966266481431,106.83127999305725););(._;>;);out body;
+
+I found a simple way to debug the Overpass API calls through Overpass's interactive web app.
+[http://overpass-turbo.eu/]
+
+I realized, I need only the "way" objects.
+
+I realized that I need to extend from '["building" = "yes"]'' to simply '["building"]' in the query, since some buildings are e.g. "building" = "church" etc.
+
+I used Google Maps to find an approximate bounding box for Manhattan.
+s = 40.685816
+w = -74.037724
+n = 40.881304
+e = -73.902455
+
+I synthetsized the above into the following Overpass API query:
+>>> http://overpass-api.de/api/interpreter?data=(way["building"](40.685816,-74.037724,40.881304,-73.902455););(._;>;);out body;
+
+Using the above query I downloaded the XML data to 
+~/InsightFellowship/Project/Manhattan_buildings.xml
+
+I decidede to use beautifulsoup to parse the XML file. But I don't know in which format should I store the data to make it easy to analyze for light-ray-crossing.
+
+
+In order to efficiently determine the siluettes of the buildings from the observer's position I'll do the following:
+ a. Group the buildings into larger rectangular blocks (N_blocks := sqrt(N_buildings))
+ b. For each block calculate and store:
+ 	i. max height
+ 	ii. 2D coordinates of the 4 vertices of the block
+ c. When rendering the siluette:
+ 	0. Exlude all blocks with max height smaller than observer's altitude
+ 	1. Start with self
+ 	2. Continue with the buildings in the same block
+ 	3. Continue with the buildings in the neighboring blocks
+ 	4. Continue with all remaining buildings
+ 	5. After each a building's siluette is added to the view, exclude blocks that are completely shadowed by the new siluette
+
+I think the above algorithm will allow a fast and complete generation of the siluette view. After which calculating when is the Sun blocked is probably simple.
+
+Given the blocks (4 vertices: x1,y1,x2,y2,x3,y3,x4,y4, and max height z_max), the following pseudocode will (hopefully) do the job:
+
+draw_siluette(buildings, blocks, obs):
+	% buildings is an array of building instances:
+	%	Key: id
+	%	- vertices: array of tuples(x,y)
+	%	- height: z
+	%	- block id
+
+	% blocks is dict of block instances:
+	%	Key: id
+	%	- list_of_buildings: array of building id's
+	%	- max height, z_max
+	%	- vertices: array of length 4 of tuples(x,y)
+	% 	- center
+
+	% obs is the observer's position: tuple(x,y,z)
+
+	% siluette is an array of arrays of tuples(phi, theta), ordered by distance from observer, defining the rooflines of the buildings with visible roofline
+
+	siluette = []
+	
+	block_order = []
+	for block in blocks:
+		% get blocks which are higher than the observer
+		if block.z_max > obs.z:
+			% find distances to each block center
+			block_order.append( tuple( id, distance(block.center, obs) ) )
+	% determine the order in which the blocks should be investigated
+	block_order.sort(by second element of the tuple)
+
+	while len(block_order):
+		block_id = block_order[0][0]
+		% get buildings from the block shorter than the observer
+		building_order = []
+		for building_id in blocks[block_id.list_of_buildings
+			if building.z > obs.z:
+				building_order.append(building_id)
+
+		% draw buidlings on siluette
+		for building_id in building_order:
+			building = buildings(building_id)
+			% calculate observing angles for each vertex
+			observed_vetices = []
+			for vertex in building.vertices:
+				tuple = get_phi_theta(vertex, building.z,  obs)
+				observed_vertices.append(tuple)				
+			siluette.append(observed_vertices)
+
+		% remove the processed block from the list
+		block_order.pop(0)
+
+		% evaluate whether the remaining blocks are shadowed
+		for remaining_block in block_order:
+			block_id = remaining_block[0]
+			if is_block_shadowed(block(block_id), siluette):
+				block_order.remove(remaining_block)
+
+	% at this point siluette is an array of arrays of tuples(phi, theta), each corresponding to the arrays of the vertices of each buildings from visible blocks
+
+	% let's get rid of totally blocked buildings
+
+
+
+		
+
