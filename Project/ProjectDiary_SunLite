@@ -223,4 +223,21 @@ Way definitions:
 Footer:
 	</osm>
 
-In 'Crysler.xml', I have a small dataset, containing the eintire Crysler buidling.
+In 'Crysler.xml', I have a small dataset, containing the entire Crysler buidling, which I'll use to debug my code.
+
+Tasks for today:
+1. Load list of nodes and ways into pandas dataframes
+2. Create a new dataframe, containing building data
+3. Save the building dataframe to disk
+4. Determine good coordinates to define the blocks
+5. Create the blocks in a new dataframe
+6. Save the blocks dataframe to the disk
+
+
+Here's a piece of Python code to check which packages are installed:
+>>> import pip
+>>> installed_packages = pip.get_installed_distributions()
+>>> installed_packages_list = sorted(["%s==%s" % (i.key, i.version)
+     for i in installed_packages])
+>>> print(installed_packages_list)
+
