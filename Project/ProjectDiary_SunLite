@@ -42,6 +42,7 @@ e = -73.902455
 I synthetsized the above into the following Overpass API query:
 >>> http://overpass-api.de/api/interpreter?data=(way["building"](40.685816,-74.037724,40.881304,-73.902455););(._;>;);out body;
 
+
 Using the above query I downloaded the XML data to 
 ~/InsightFellowship/Project/Manhattan_buildings.xml
 
@@ -126,6 +127,100 @@ draw_siluette(buildings, blocks, obs):
 	% let's get rid of totally blocked buildings
 
 
-
 		
+For the slides for Friday, I decided to plot the histogram of the heights. This seems the easiest, since I need to extract only the height information from the XML file, which is always at '<tag k="height" v="19.6"/>'.
 
+After plotting the histogram, I realized that the landmark buildings are missing their heights. This is because their height is a tag to ways with "building:part" tags.
+
+I tried the following two calls
+>>> http://overpass-api.de/api/interpreter?data=(way["building"](40.751194, -73.976618, 40.752031, -73.974204););(._;>;);out body;
+>>> http://overpass-api.de/api/interpreter?data=(way["building"](40.748134, -73.986997, 40.749085, -73.984336););(._;>;);out body;
+
+And tried
+"
+way["building"](40.748134, -73.986997, 40.749085, -73.984336);
+way["building:part"](40.748134, -73.986997, 40.749085, -73.984336);
+/*added by auto repair*/
+(._;>;);
+/*end of auto repair*/
+out body;
+"
+in 
+http://overpass-turbo.eu/
+
+This resulted in the full structure data of the Empire State Building. 
+
+So I changed the Overpass API call to
+>>> http://overpass-api.de/api/interpreter?data=(way["building"](40.685816,-74.037724,40.881304,-73.902455);way["building:part"](40.685816,-74.037724,40.881304,-73.902455););(._;>;);out body;
+
+
+Day 4 - Jul 10
+--------------
+In the morning I put together the slides, "3Slides.pdf" for the afternoon presentation.
+
+Before starting crunching the data, I need to parse the XML into a structure I can use.
+XML contains the following type of lines:
+Header lines:
+	<?xml version="1.0" encoding="UTF-8"?>
+	<osm version="0.6" generator="Overpass API">
+	<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+	<meta osm_base="2015-07-10T01:22:02Z"/>
+
+Node list:
+  	<node id="530737132" lat="40.7514887" lon="-73.9758501"/>
+	  OR
+    <node id="2666720512" lat="40.7522067" lon="-73.9741698">
+	<tag k="entrance" v="main"/>
+	</node>
+
+Way definitions:
+	<way id="42500770">
+	    <nd ref="530737132"/>
+	    <nd ref="2665014478"/>
+	    <nd ref="2665014638"/>
+	    <nd ref="530737135"/>
+	    <nd ref="530737137"/>
+	    <nd ref="2665014479"/>
+	    <nd ref="2665014429"/>
+	    <nd ref="2714805423"/>
+	    <nd ref="2665014352"/>
+	    <nd ref="2665014344"/>
+	    <nd ref="2665014314"/>
+	    <nd ref="2665014313"/>
+	    <nd ref="2714805412"/>
+	    <nd ref="530737139"/>
+	    <nd ref="530737132"/>
+	    <tag k="building" v="tower"/>
+	    <tag k="building:part" v="no"/>
+	    <tag k="building:use" v="office"/>
+	    <tag k="name" v="Chrysler Building"/>
+	    <tag k="name:el" v="Κτίριο Κράισλερ"/>
+	    <tag k="name:es" v="Edificio Chrysler"/>
+	    <tag k="name:he" v="בניין קרייזלר"/>
+	    <tag k="name:ru" v="Крайслер-билдинг"/>
+	    <tag k="start_date" v="1930"/>
+	    <tag k="tourism" v="yes"/>
+	    <tag k="wikipedia" v="en:Chrysler Building"/>
+  	</way>
+  		OR
+  	<way id="159899676">
+	    <nd ref="1719705334"/>
+	    <nd ref="1719705331"/>
+	    <nd ref="1719705315"/>
+	    <nd ref="1719705327"/>
+	    <nd ref="1719705334"/>
+	    <tag k="building" v="yes"/>
+	    <tag k="building:colour" v="#818880"/>
+	    <tag k="building:part" v="yes"/>
+	    <tag k="height" v="22"/>
+	    <tag k="name" v="Socony-Mobil Building"/>
+	    <tag k="nycdoitt:bin" v="1036153"/>
+	    <tag k="roof:material" v="concrete"/>
+	    <tag k="roof:shape" v="flat"/>
+	    <tag k="start_date" v="1956"/>
+  	</way>
+
+Footer:
+	</osm>
+
+In 'Crysler.xml', I have a small dataset, containing the eintire Crysler buidling.
