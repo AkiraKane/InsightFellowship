@@ -253,6 +253,6 @@ Tasks for today:
 --OK-- 2. Create a new dict, containing building data
 3. Save the building data to disk
 4. Determine good coordinates to define the blocks
-5. Create the blocks in a new dataframe
-6. Save the blocks dataframe to the disk
+5. Create the blocks in a new dict
+6. Save the blocks dict to the disk
 
