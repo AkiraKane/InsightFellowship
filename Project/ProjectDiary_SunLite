@@ -1,12 +1,16 @@
 Diary of SunLight project development
 =====================================
 
+--------------
 Day 1 - Jul 07
 --------------
+
 I wanted to use Google maps data to predict the time of sunlight in different apartments near highrises.
 
+--------------
 Day 2 - Jul 08
 --------------
+
 Google doesn't share height data of buildings, only ground elevation.
 [https://developers.google.com/maps/documentation/elevation/]
 
@@ -20,8 +24,10 @@ Andrew suggested a health oriented selling point. People who need sunlight due t
 I found the Overpass API
 [http://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide]
 
+--------------
 Day 3 - Jul 09
 --------------
+
 I found a working call to Overpass API, that downloads an XML.
 [http://inasafe.org/en/developer-docs/osm_building_downloads.html]
 >>> http://overpass-api.de/api/interpreter?data=(node["building"="yes"](-6.185440796831979,106.82374835014343,-6.178966266481431,106.83127999305725);way["building"="yes"](-6.185440796831979,106.82374835014343,-6.178966266481431,106.83127999305725);relation["building"="yes"](-6.185440796831979,106.82374835014343,-6.178966266481431,106.83127999305725););(._;>;);out body;
@@ -157,8 +163,10 @@ Empire State Building:
 http://overpass-api.de/api/interpreter?data=(way["building"](40.748134, -73.986997, 40.749085, -73.984336);way["building:part"](40.748134, -73.986997, 40.749085, -73.984336););(._;>;);out body;
 
 
+--------------
 Day 4 - Jul 10
 --------------
+
 In the morning I put together the slides, "3Slides.pdf" for the afternoon presentation.
 
 Before starting crunching the data, I need to parse the XML into a structure I can use.
@@ -245,9 +253,10 @@ Here's a piece of Python code to check which packages are installed:
 >>> print(installed_packages_list)
 
 
-
+--------------
 Day 5 - Jul 12
 --------------
+
 Tasks for today:
 --OK-- 1. Load list of nodes and ways into dicts
 --OK-- 2. Create a new dict, containing building data
@@ -341,3 +350,75 @@ given mean_lon and mean_lat
 
 Next, I'll define the blocks, and group buildings to them.
 
+
+--------------
+Day 6 - Jul 13
+--------------
+
+Idea: Blocks should store the buildings in descending height order, and when a block is partially shadowed by buildings already on the silhouette, only the buildings that are higher than a certain height will get investigated in that block.
+
+To do list for week 2:
+--OK-- 1. Define blocks
+--OK-- 2. Group buildings into the blocks
+3. Design the SQL database
+4. Load data (buildings and blocks) into SQL database
+5. Set up SQL querries for cycling through the buildings and blocks
+6. Write drawing algorithm in Python, using the querries to the SQL database
+7. Put the Sun's path on the drawing, given the day of the year
+8. Get minimal number of points required to representat the finished silhouette
+9. For each point on the Sun's path, determine whether it's covered.
+10. Create plot of direct sunlight as a function of time.
+
+
+Using the (x, y) coordinates (measured in meters) has the range:
+x in [-5e3, 6e3]
+y in [-1e4, 1.3e4]
+
+I'll used square blocks, aligned with the x,y coordinate lines, for simplicity.
+
+There is 53306 building(parts) in the filtered Manhattan data.
+In the algorithm, drawing the silhouette, 
+	1. I loop through all buildings in the first block
+	2. After adding each building to the silhouette, loop through all blocks to check if how much they are shadowed.
+I estimate that the typical number of shadow-checks (checking if a building or block is already covered), is [Number of buildings in block] + [Number of final buildings visible] * [Number of blocks]
+
+Given that 
+	# of buildings =approx= 1e5
+	# of visible buildings (typically) =approx= 20
+the optimal number of blocks is =approx= 70
+
+the range of x and y have the lengths:
+x_max - x_min = 1.1e4
+y_max - y_min = 2.3e4
+
+A block size of 1000 * 1000 will produce 253 blocks over the rectangular map area, but approximately 2/3 of this will be empty. This gives a total of approx 80 blocks, which sound just right.
+
+The blocks will be defined by their 
+ - four vertices
+ - list of building ids
+ - heighest building height in the block
+
+Note: I need to make sure to fix the origin of the (x,y) map to the earlier choosen values:
+
+>> R = 6371009
+>> deg2rad = np.pi/180
+>> mean_lat =  40.771803
+>> mean_lon = -73.973351
+>> cos_mean_lat = np.cos(mean_lat * deg2rad)
+>> this_x = R * cos_mean_lat * (lon - mean_lon)* deg2rad
+>> this_y = R * (lat - mean_lat)* deg2rad
+
+I define the gridlines of the blocks by the following list of x and y values:
+x_grid = [-5e3, -4e3]
+
+I need a function that assigns the (x,y) coordinate to one of the blocks.
+
+
+I learned that SQL cannot store arrays.
+This means I need to store the nodes in a separate table, and link them to buildings in their own table, and not link the buildings to their nodes in the buildings table.
+
+SQL tables:
+Nodes: id, lon, lat, building_id, next_node_id
+Buildings: id, height, block_id, number_of_nodes, first_node
+Blocks: id, xmin, xmax, ymin, ymax, block_id_N, block_id_S, block_id_E, block_id_W,
+		max_height
