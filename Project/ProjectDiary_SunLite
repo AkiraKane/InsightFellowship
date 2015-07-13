@@ -256,3 +256,88 @@ Tasks for today:
 5. Create the blocks in a new dict
 6. Save the blocks dict to the disk
 
+
+I defined the center attribute to the Building class, and this way I created a scatter plot of all buildings in the dataset. Since the bounding box for the Overpass API was a rectangle, many more buidlings are included, other than the ones in Manhattan.
+
+I need a way to select the buildings in Manhattan.
+
+Let's list the coordinates of Mahnattan's (approximate boundary).
+40.686467, -74.034462
+40.700003, -74.025536
+40.756201, -74.013176
+40.826122, -73.964768
+40.881953, -73.933525
+40.871569, -73.909150
+40.856900, -73.919707
+40.845149, -73.928547
+40.835733, -73.933096
+40.807869, -73.931637
+40.790975, -73.910523
+40.777198, -73.928032
+40.779278, -73.934813
+40.773623, -73.939190
+40.768488, -73.939791
+40.739945, -73.966399
+40.709633, -73.971978
+40.703842, -73.998328
+40.680804, -74.021073
+
+I need an algorithm to drop to buildings that our outside this boundary.
+
+I can do this if the boundary is convex. Let's define a convex boundary:
+40.875615, -73.904533
+40.791452, -73.907966
+40.706402, -73.967017
+40.676465, -74.020233
+40.682193, -74.035339
+40.757133, -74.015083
+40.884441, -73.932342
+
+This worked okay. I can refine the results by defining the convex boundaries of the neighboring regions:
+Bronx:
+40.871332, -73.909511
+40.894563, -73.880328
+40.852377, -73.811836
+40.803538, -73.822307
+40.795871, -73.911914
+40.802563, -73.927836
+40.809515, -73.933501
+40.824422, -73.933415
+40.835203, -73.933973
+40.847118, -73.927364
+40.861531, -73.916334
+
+This worked nicely. Now, let's do the same for Brooklyn:
+40.708105, -73.974007
+40.744920, -73.961819
+40.755974, -73.952034
+40.778206, -73.931606
+40.791463, -73.910149
+40.801340, -73.885430
+40.752983, -73.788269
+40.653038, -73.900192
+40.673091, -73.956841
+
+And one last piece, south Broolyn:
+40.680121, -74.020355
+40.702118, -74.000614
+40.705632, -73.995465
+40.708625, -73.975037
+40.695872, -73.918389
+40.656685, -73.953751
+40.651606, -74.009884
+
+
+I would like to convert the (lon, lat) coordinates to (x[m], y[m]), using a flattening at the center of manhattan.
+
+The mean radius ((2a + b)/3) of the Earth is R = 6371009 m.
+source: https://en.wikipedia.org/wiki/Earth_radius
+
+This can be used to convert each (lon, lat) coordinate to
+given mean_lon and mean_lat
+	x = R * cos(mean_lat) * (lon - mean_lon)
+	y = R * (lat - mean_lat)
+
+
+Next, I'll define the blocks, and group buildings to them.
+
