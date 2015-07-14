@@ -449,3 +449,82 @@ I realized that if I want to use the automatic indexing of the SQL database, the
 
 But I need to do this in a nested loop, so that when I add a block to the Blocks table, I also add the buildings in that block to the Buildings table and note the index of the block. And as I do that, I also add the nodes as I add the buildings, and indicate the building id on the nodes' records.
 
+
+
+--------------
+Day 7 - Jul 14
+--------------
+To do list for today:
+--OK-- 1. Design the SQL database
+--OK-- 2. Load data (nodes, buildings and blocks) into SQL database
+3. Set up SQL querries for cycling through the buildings and blocks
+
+Further work:
+4. Write drawing algorithm in Python, using the querries to the SQL database
+5. Put the Sun's path on the drawing, given the day of the year
+6. Get minimal number of points required to representat the finished silhouette
+7. For each point on the Sun's path, determine whether it's covered.
+8. Create plot of direct sunlight as a function of time.
+
+
+SQL Database tables: 
+	Blocks: Id, Name, Xmin, Xmax, Ymin, Ymax, X_id, Y_id, Max_height
+	Buildings: Id, Name, Height, First_node_id, Number_of_nodes, Block_id
+	Nodes: Id, X, Y, Order_in_building, Number_of_nodes_in_building, Building_id,
+		   Block_id
+
+Maybe I can get away with only loading Blocks and Nodes.
+for each block:
+	- calculate X_id, Y_id, ... and Max_height
+	- and load
+	- get block_id
+	for each building:
+		- use the building key as building id
+		- calculate number of nodes
+		for each node:
+			- determine order
+			- get z
+			- get X, Y, ...
+			- load
+
+I loaded the following two tables:
+    CREATE TABLE Blocks(\
+        Id INT PRIMARY KEY AUTO_INCREMENT,\
+        Xmin FLOAT(20,10),\
+        Xmax FLOAT(20,10),\
+        Ymin FLOAT(20,10),\
+        Ymax FLOAT(20,10),\
+        X_id INT,\
+        Y_id INT,\
+        Max_height FLOAT(20,10)\
+    )
+    CREATE TABLE Nodes(\
+        Id INT PRIMARY KEY AUTO_INCREMENT,\
+        X FLOAT(20,10),\
+        Y FLOAT(20,10),\
+        Z FLOAT(20,2),\
+        Order_in_building INT,\
+        Number_of_nodes_in_building INT,\
+        Building_id INT,\
+        Block_id INT\
+    )
+
+Now I have SQLload.ipynb, which 
+	- extracts data from XML
+	- calcuates cartesian coordinates
+	- defines blocks as 1000*1000 squares
+	- collects buildings into blocks
+	- creates the Nodes and Blocks tables in Manhattan_buildings SQL database
+	- loads the node and block data to them 
+	(I decided that a Buildings table is not needed, since I can associate each node with each block)
+
+The next steps will star with the SQL database, and treat it as source of data.
+
+
+
+
+
+
+
+
+
