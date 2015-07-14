@@ -457,10 +457,12 @@ Day 7 - Jul 14
 To do list for today:
 --OK-- 1. Design the SQL database
 --OK-- 2. Load data (nodes, buildings and blocks) into SQL database
-3. Set up SQL querries for cycling through the buildings and blocks
-	a. given the observer's coordinates (lon, lat):
+--OK-- 3. Set up SQL querries for cycling through the buildings and blocks
+	--OK-- a. given the observer's coordinates (lon, lat):
 		- get cartesian coordinates
-		- get block id
+		- get block id (x_id, y_id)
+	--OK-- b. given block id:
+		- plot all buildings on the map in that block
 
 Further work:
 4. Write drawing algorithm in Python, using the querries to the SQL database
@@ -545,5 +547,10 @@ and the gridline data in the Grids table:
 
 
 
+After playin with the SQL queries, and plotting all buildings in a block, it seem to me that the blocks are too large. 
+Buildings have more nodes than the blocks (which have 4), and therefore it is optimal to have smaller number of buildings in a block. I choose 500*500 blocks for now.
 
+This also seems to run slow. And even if I limit the queries to buildings taller than 100 meters. Despite the fact that there's only a few of those.
+
+I think the reason is that calling the cur.execute() many times is slower than calling it once, and post-processing the result. Hopefully, if I do it the later way, it will be faster.
 
