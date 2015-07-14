@@ -458,6 +458,9 @@ To do list for today:
 --OK-- 1. Design the SQL database
 --OK-- 2. Load data (nodes, buildings and blocks) into SQL database
 3. Set up SQL querries for cycling through the buildings and blocks
+	a. given the observer's coordinates (lon, lat):
+		- get cartesian coordinates
+		- get block id
 
 Further work:
 4. Write drawing algorithm in Python, using the querries to the SQL database
@@ -520,8 +523,24 @@ Now I have SQLload.ipynb, which
 
 The next steps will star with the SQL database, and treat it as source of data.
 
-
-
+I store the radius of Earth, mean_lon and mean_lat for Manhattan in the Cities table:
+	CREATE TABLE Cities(\
+        Id INT PRIMARY KEY AUTO_INCREMENT,\
+        Name VARCHAR(25),\
+        Planet_radius FLOAT(20,10),\
+        Mean_lon FLOAT(20,10),\
+        Mean_lat FLOAT(20,10)\
+    )
+and the gridline data in the Grids table:
+	CREATE TABLE Grids(\
+        Id INT PRIMARY KEY AUTO_INCREMENT,\
+        Xmin FLOAT(20,10),\
+        Xmax FLOAT(20,10),\
+        Xstep FLOAT(20,10),\
+        Ymin FLOAT(20,10),\
+        Ymax FLOAT(20,10),\
+        Ystep FLOAT(20,10)\
+    )
 
 
 
