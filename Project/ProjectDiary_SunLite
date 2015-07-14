@@ -418,7 +418,34 @@ I learned that SQL cannot store arrays.
 This means I need to store the nodes in a separate table, and link them to buildings in their own table, and not link the buildings to their nodes in the buildings table.
 
 SQL tables:
-Nodes: id, lon, lat, building_id, next_node_id
-Buildings: id, height, block_id, number_of_nodes, first_node
-Blocks: id, xmin, xmax, ymin, ymax, block_id_N, block_id_S, block_id_E, block_id_W,
-		max_height
+Nodes: 
+	id: int, 
+	lon: float(10,10), 
+	lat: floar(10,10), 
+	building_id: varchar(25), 
+
+Buildings: 
+	id: int, 
+	height: float(10,10), 
+	block_id: int, 
+	number_of_nodes: int, 
+	first_node: int
+
+Blocks: 
+	id: varchar(25), 
+	xmin: float(10,10), 
+	xmax: float(10,10), 
+	ymin: float(10,10), 
+	ymax: float(10,10), 
+	x_id: int,
+	y_id: int,
+	max_height: float(10,10)
+
+
+I realized that if I want to use the automatic indexing of the SQL database, then I need to load the tables in the following order:
+1. Blocks
+2. Buildings
+3. Nodes
+
+But I need to do this in a nested loop, so that when I add a block to the Blocks table, I also add the buildings in that block to the Buildings table and note the index of the block. And as I do that, I also add the nodes as I add the buildings, and indicate the building id on the nodes' records.
+
