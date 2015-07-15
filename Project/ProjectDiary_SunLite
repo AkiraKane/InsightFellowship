@@ -562,7 +562,8 @@ First, I am going to try whether processing the result of a single SQL query in 
 This worked.
 
 Now, for today:
-1. Write drawing algorithm in Python (phi, theta building points -> silhouette)
+--OK-- 1. Write drawing algorithm in Python (phi, theta building points -> silhouette)
+--OK-- 1a. Write the add-cliff-to-silhouette algorithm
 2. Write queries and convert node x,y,z to phi, theta
 3. Put the drawing and the queries together for a single block
 4. Get the exact equation for the Sun's position (given lon, lat, time_of_year, ...)
@@ -580,4 +581,23 @@ I'll have two new classes:
 	Silhouette: containing all data about the view of the buildings
 	Cliff: a single point of a Silhouette instance
 
+I need to treat buildings that are covering the North direction separately, since these wrap around on the phi in [-pi,pi] interval. First let's just ignore them, and not add them to the silhouette.
 
+Now, the Silhouette class (in DrawSilhouette.ipynb) implements:
+	draw(): which draws the silhouette on the [-180:180]x[0:90] view
+	add_roof(): which takes (phi1, phi2, theta) of a roof, and adds its silhouette to the Silhouette instance
+
+Next, let's implement a function: 
+	get_roof(x,y, building):
+		given observers(x,y), and a Building instance
+		returns (phi1, phi2, theta) coordinates
+
+Instead of this, it is better to treat each way of the building as a separate roof piece.
+Also, the observer also has a height, z.
+Let's implement the function:
+	draw_building(lon, lat, alt, building, silhouette):
+		adds all roof pieces to the silhouette one after the other
+
+This works, expect if the building is crossing the North-line.
+Currently, the get_roof function orders phi1 and phi2. 
+I need a way to indicate if a roof is south facing or north facing, in which case it crosses the North direction, and wraps around the phi in [-pi, pi] range.
