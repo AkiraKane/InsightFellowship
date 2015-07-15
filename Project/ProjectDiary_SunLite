@@ -546,11 +546,38 @@ and the gridline data in the Grids table:
 
 
 
-
 After playin with the SQL queries, and plotting all buildings in a block, it seem to me that the blocks are too large. 
 Buildings have more nodes than the blocks (which have 4), and therefore it is optimal to have smaller number of buildings in a block. I choose 500*500 blocks for now.
 
 This also seems to run slow. And even if I limit the queries to buildings taller than 100 meters. Despite the fact that there's only a few of those.
 
 I think the reason is that calling the cur.execute() many times is slower than calling it once, and post-processing the result. Hopefully, if I do it the later way, it will be faster.
+
+
+--------------
+Day 8 - Jul 15
+--------------
+First, I am going to try whether processing the result of a single SQL query in python is faster than submitting many queries.
+
+This worked.
+
+Now, for today:
+1. Write drawing algorithm in Python (phi, theta building points -> silhouette)
+2. Write queries and convert node x,y,z to phi, theta
+3. Put the drawing and the queries together for a single block
+4. Get the exact equation for the Sun's position (given lon, lat, time_of_year, ...)
+5. Put the Sun's path on the drawing, given the day of the year
+
+Further work:
+- Make the Block_id of the Nodes table a key
+- Put together a simple version of the web app, showing mock images
+- Connect the python function with the web app.
+- For each point on the Sun's path, determine whether it's covered.
+- Create plot of direct sunlight as a function of time.
+
+
+I'll have two new classes: 
+	Silhouette: containing all data about the view of the buildings
+	Cliff: a single point of a Silhouette instance
+
 
