@@ -606,3 +606,391 @@ Or, I can simply make two separate roof objects for every roof that lies on the 
 
 
 
+--------------
+Day 9 - Jul 16
+--------------
+For today:
+--OK-- 1. Understand how the tutorian web app works
+--OK-- 2. Modify it to show a plot
+--OK-- 3. Link drawing functions to the web app's callback(s)
+4. Make a webapp:
+	--OK-- input: ["lon, lat"], z of observer
+	output: 
+		--OK-- plot of the block's layout 
+		drawing of the silhouette
+
+First, let's look at the tutoriall web app.
+
+Directory structure:
+webapp/
+	app/
+		static/
+			css/
+				bootstrap.css
+				bootstrap.css.map
+				bootstrap.min.css
+				bootstrap-theme.css
+				bootstrap-theme.css.map
+				bootstrap-theme.min.css
+			fonts/
+				...
+			js/
+				bootstrap.js
+				bootstrap.min.js
+		templates/
+			index.html
+			cities.html
+			input.html
+			output.html
+			starter-template.css
+		a_Model.py (and .pyc)
+		__init__.py (and .pyc)
+		views.py (and .pyc)
+	tmp/
+		(empty)
+	run.py
+
+I conjecture that
+1. the entire static/ directory needs to be present
+2. the htmls in the templates/ directory needs to be modified to give a different content to the front-end
+3. __init__.py and views.py areessential (and may or may not need to be changed)
+4. a_Model.py is probably called by either run.py or views.py, and can be exchanged for anything
+5. run.py is essential, and probably shoulnd't be changed
+
+
+Next, let's investigate the content of different files:
+
+run.py
+======
+It is very short:
+"""
+#!/usr/bin/env python
+from app import app
+app.run(debug = True)
+"""
+I looks like it imports everything in the app/ directory, and runs it (whatever that means) in debug mode (which I'm guessing makes it display error messages in the browser window)
+
+Also, I remember that this is the file that needs to be run from the terminal, before the browser can connect to the local server, and display the web app. I'll not change run.py.
+
+I created app/, tmp/ and run.py (with the content above) in my Project/WebApp/ directory.
+
+I also copy the entire static/ directory and its content to app/
+
+
+__init__.py
+===========
+It is very short:
+"""
+from flask import Flask
+app = Flask(__name__)
+from app import views
+"""
+It looks like this is the __init__ function (or process?) of the app package (or calss?).
+It imports Flask, which is the workhorse here, and the creats a Flask instance, app, and imports everything in the views.py.
+I'll not change __init__.py, and copy it to WebApp/app/
+
+
+views.py
+========
+This is a quite long python file, with the preambule:
+"""
+from flask import render_template, request
+from app import app
+import pymysql as mdb
+from a_Model import ModelIt
+"""
+Which imports flask and the app, which are probably obviously needed. Then it import SQL handling package, and the model a_Model
+
+After this it open a connection to the database
+"""
+db= mdb.connect(user="root", host="localhost", passwd="123", db="world_innodb", charset='utf8')
+"""
+
+And the rest is structured as mappings of the "views", which are the strings written after 
+http://localhost:5000
+(including the starting '/')
+
+e.g. 
+"""
+@app.route("/db_fancy")
+def cities_page_fancy():
+    with db:
+        cur = db.cursor()
+        cur.execute("SELECT Name, CountryCode, Population FROM City ORDER BY Population LIMIT 15;")
+
+        query_results = cur.fetchall()
+    cities = []
+    for result in query_results:
+        cities.append(dict(name=result[0], country=result[1], population=result[2]))
+    return render_template('cities.html', cities=cities) 
+
+"""
+which defines a python function cities_page_fancy(),
+which 
+	- does some manipulation ot the database
+	- gathers data into the list cities
+	- passes the list to render_template() and returns its ouput (which is probably the page)
+	- the first argument of render_template() is a string to an html file in app/templates/ (which probably contains the content information about the page)
+This is the example, where no interactive elements are present, the SQL query is hard coded. This is probably not needed for the interactive app to work, and so does not the 'cities.html'.
+
+
+another two examples are
+"""
+@app.route('/input')
+def cities_input():
+  return render_template("input.html")
+"""
+which simply defines the function that return the output of the rendering of "input.html" template
+
+and
+"""
+@app.route('/output')
+def cities_output():
+  city = request.args.get('ID')
+
+  with db:
+    cur = db.cursor()
+    #just select the city from the world_innodb that the user inputs
+    cur.execute("SELECT Name, CountryCode,  Population FROM City WHERE Name='%s';" % city)
+    query_results = cur.fetchall()
+
+  cities = []
+  for result in query_results:
+    cities.append(dict(name=result[0], country=result[1], population=result[2]))
+
+  #call a function from a_Model package. note we are only pulling one result in the query
+  pop_input = cities[0]['population']
+  the_result = ModelIt(city, pop_input)
+  return render_template("output.html", cities = cities, the_result = the_result)
+"""
+which seem to do much more:
+	- gets input with the line:
+		" city = request.args.get('ID') "
+		which is not a db operation. 
+		And request is probably an object defined outide cities_output()
+	- queries the SQL database with the input just fetched, and fethes the result
+	- creates the list of outputs from the query result to a list of dicts
+	- gets the first output (just to show and example), and feeds it in ModelIt (a function of a_Model)
+	- with the return of that, it calls the rendering, using now the "output.html" as template, and additional arguments defined by the 'name=value' convention
+
+This function seems to be the "main" function of a single usage of the web app. I copied view.py to WebApp/app/ and kept only two view mappings: '/input', and '/output', but didn't modify them yet.
+
+
+a_Model.py
+==========
+This is a simple example:
+"""
+def ModelIt(fromUser  = 'Default', population = 0):
+  print 'The population is %i' % population
+  result = population/1000000.0
+  if fromUser != 'Default':
+    return result
+  else:
+    return 'check your input'
+"""
+which defines a function that is run in the output() function under the @app.route('/output') mapping in view.py. It returns a single number, so it seems to me that this can be any function I need to happen inside output().
+
+I'll write my own function to do this, so I don't need a_Model.py. (unless I call it specifically in output() of views.py)
+
+In the templates/ directory, I'm guessing I'll only need the templates which are actually referred to in the first argument of the render_template() function. This means I only need 'input.html' and 'output.html'. I'll copy those, and the starter-template.css too, just in case.
+
+Let's copy a_Model.py to app/ too, and test if the app works, now that I stripped a few things off it, and it's at a different location.
+
+It worked.
+
+
+
+Now, let's take a look at the template files:
+
+input.html
+==========
+This is an html file.
+
+In the head, I can change the title of the page. But otherwise, I think I'm going to leave it alone.
+
+In theb body, there's a <nav> part:
+"""
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Project name</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+"""
+where I change 'Project name' to 'SunnyMinutes', and leave the rest alone. (Probably later, we will add content to this, or to the bookmarks it refers to.)
+
+Further down in the body, it says
+"""
+  <div class="container">
+
+	...
+	...
+	...
+  </div> <!-- /.container-->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+"""
+
+The first part seems to contain everything that's actually on the page, under the header bar.
+The second part says "... core JavaScript", which I'm afraid of, so I'm not going to touch it.
+
+So, it seems the real content of the page is:
+"""
+<div class="container">
+
+    <div class="starter-template">
+        <h2>Input Page</h2>
+        <p>Enter some user input</p>
+    </div>
+
+    <div class = "container">
+
+      <form  action="/output" method="GET">
+        <div class="form-group">
+          <label for="ID">City  Name:</label>
+          <input type="text" id="ID" name='ID' placeholder="e.g. ">
+        </div>
+
+        <div>
+          <button type="submit" class="btn btn-default btn-lg">Find this city!</button>
+        </div>
+
+      </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+
+  </div> <!-- /.container-->
+"""
+
+This seems to be doing the followin:
+	1. Writes the text "Input Page" and "Enter some user input" to the page with different styles
+	2. Puts up a form with <form action=... > ... </form>
+		which defines the action to be '/output' (which I'm guessing gets the '/ouput' view)
+		and also specifies the components:
+			- a form with label and input
+			- a submit button
+	3. two lines calling javascript, which I'll leave alone.
+
+
+
+output.html
+===========
+This is a modified version of input.html. 
+The beginning is the same.
+The added part is:
+"""
+</div> <!-- /.container-->
+
+    <div class="container">
+      <div class="starter-template">
+        <h3>Results:</h3>
+        <p class="lead">Below is the result of your query.<br> You just took user input and looked up the information. Now we need to expand the functionality!</p>
+      </div>
+
+      <table class="table table-hover">
+      <tr><th>Name</th><th>Country</th><th>Population</th></tr>
+      {% for city in cities %}
+      <tr><td>{{ city['name'] }}</td><td>{{ city['country']}}</td><td> {{ city['population'] }}</td></tr>
+      {% endfor %}
+      </table>
+
+
+     </div><!-- /.container -->
+
+    <div class="container">
+      <div class="starter-template">
+        <h3>Another Result:</h3>
+        <p class="lead">Now we've taken the input and called a function from your package.<br>The result is {{the_result}}</p>
+      </div>
+
+
+      <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+      <script src="static/js/bootstrap.min.js"></script>
+
+
+     </div><!-- /.container -->
+"""
+which
+	1. writes text
+	"""
+	  <div class="starter-template">
+        <h3>Results:</h3>
+        <p class="lead">Below is the result of your query.<br> You just took user input and looked up the information. Now we need to expand the functionality!</p>
+      </div>
+	"""
+	
+	2. puts up a table with a for loop
+	"""
+	<table class="table table-hover">
+		<tr><th>Name</th><th>Country</th><th>Population</th></tr>
+		{% for city in cities %}
+			<tr><td>{{ city['name'] }}</td><td>{{ city['country']}}</td><td> {{ city['population'] }}</td></tr>
+		{% endfor %}
+	</table>
+	"""
+	where citis is an argument of the render_template function
+
+	3. Put some more text, using input {{the_result}}
+	"""
+	<div class="starter-template">
+        <h3>Another Result:</h3>
+        <p class="lead">Now we've taken the input and called a function from your package.<br>The result is {{the_result}}</p>
+      </div>
+	"""
+
+
+The way I understand it, it I only need a single template 'output.html'.
+
+But than without the inputs that output.html displays it crashes.
+
+So, first, let's compile the input.html.
+Then, create a copy of it, and add the part that show up only after the inputs are processed.
+
+
+Let's put a random dynamic plot to the input page.
+I'll use the recipe, foud here: 
+http://stackoverflow.com/questions/20435604/flask-matplotlib-graphics-in-template
+
+This worked, expect the image was simply added with the line
+"""
+<img src="./mypng">
+"""
+where mypng is the route's name in views.py
+
+
+I think it will be great to store the query data and the already generated silhouettes in the SQL database.
+
+I got the block plotting function to work nicely. Under the route mapping name '/block_map'.
+
+Next, let's see how fast (and well) does the silhouette drawing algorithm run.
+
+In /DrawSilhouette/Block_Silhouette.ipynb, I implemented this, and seems to run quite fast.
+
+
+
+
+
+
+

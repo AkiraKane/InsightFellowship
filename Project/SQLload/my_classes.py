@@ -31,13 +31,13 @@ class Building:
               + 'y_center=' + str(self.center.y)
         print 'Height:\n' + 'z=' + str(self.z)
         
-    def plot_footprint(self, color = 'k'):
+    def plot_footprint(self, ax, color = 'k'):
         x_list = []
         y_list = []
         for node in self.nodes:
             x_list.append(node.x)
             y_list.append(node.y)
-        plt.plot(x_list,y_list, color=color)
+        ax.plot(x_list,y_list, color=color)
         
     def calculate_center(self):
         x_array = []
@@ -68,13 +68,13 @@ class Block:
                 current_max_z = this_z
         self.max_z = current_max_z
     
-    def plot_on_map(self):
+    def plot_on_map(self, ax):
         x_list = []
         y_list = []
         for node in self.vertices:
             x_list.append(node.x)
             y_list.append(node.y)
-        plt.plot(x_list, y_list)
+        ax.plot(x_list, y_list)
 
 # function to determine if a node lies outside a boundary piece
 def is_outside(boundary_node_1, boundary_node_2, building_node):
@@ -247,3 +247,39 @@ class Silhouette:
                 cliff1 = Cliff(roof.phi1, theta1, roof.theta)
                 self.cliffs.insert(insert_index_1, cliff1)
             
+def get_GPS_from_address(address, lon=0, lat=0):
+    match = re.search(r'(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)', address)
+    if match:
+        lat = float(match.group(1))
+        lon = float(match.group(2))
+    return (lon, lat)
+
+
+# convert (lon,lat) to (x,y) on the local map
+def convert_to_cartesian(lon, lat, mean_lon, mean_lat, Earth_radius):
+    deg2rad = np.pi/180
+    cos_mean_lat = np.cos(mean_lat * deg2rad)
+    x = Earth_radius * cos_mean_lat * (lon - mean_lon)* deg2rad
+    y = Earth_radius * (lat - mean_lat)* deg2rad
+    return Node(x,y)
+
+# finds the block the Node(x,y) coordinates are in
+# (blocks are indexed by (x_index, y_index), starting from (0,0) )
+def find_my_block(x_my, y_my, x_grid, y_grid):
+    # find x_index of the block
+    x_index = -1
+    for x in x_grid:
+        if x_my > x:
+            x_index += 1
+        else:
+            break
+    
+    # find y_index of the block
+    y_index = -1
+    for y in y_grid:
+        if y_my > y:
+            y_index += 1
+        else:
+            break
+    
+    return (x_index, y_index)
