@@ -601,3 +601,8 @@ Let's implement the function:
 This works, expect if the building is crossing the North-line.
 Currently, the get_roof function orders phi1 and phi2. 
 I need a way to indicate if a roof is south facing or north facing, in which case it crosses the North direction, and wraps around the phi in [-pi, pi] range.
+
+Or, I can simply make two separate roof objects for every roof that lies on the North line.
+
+
+
