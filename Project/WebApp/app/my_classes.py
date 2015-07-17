@@ -142,8 +142,8 @@ class Silhouette:
     def __init__(self):
         self.cliffs = [] # list of cliffs ordered by phi
         # add the two extreme points
-        self.cliffs.append(Cliff(-np.pi, 0,0))
-        self.cliffs.append(Cliff(np.pi, 0,0))
+        self.cliffs.append(Cliff(-np.pi -1, 0,0))
+        self.cliffs.append(Cliff(np.pi + 1, 0,0))
     
     def draw(self, color='k', deg=True, marker="None"):
         # set angle unit
@@ -183,6 +183,7 @@ class Silhouette:
         insert_index_1 = 0
         insert_index_2 = 0
         
+
         i = 0
         while self.cliffs[i].phi < roof.phi1:
             insert_index_1 += 1
@@ -304,7 +305,7 @@ def get_roofs(obs_x, obs_y, obs_z, building, blur_epsilon=0.01):
     
     # calclate distances from the observer
     dist_list = np.sqrt(dx_list**2 + dy_list**2)
-
+ 
     # calculate viewing angles
     theta_list = np.arctan( np.true_divide(dz, dist_list) )
     phi_list = -np.arctan2(dx_list, -dy_list)

@@ -9,7 +9,7 @@ from my_classes import *
 con = mdb.connect('localhost', 'root', '123', 'Manhattan_buildings')
 
 @app.route('/input')
-def cities_input():
+def input():
   # default values
   LATITUTE_DEFAULT = 40.756636
   LONGITUDE_DEFAULT = -73.986362

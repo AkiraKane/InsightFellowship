@@ -613,11 +613,11 @@ For today:
 --OK-- 1. Understand how the tutorian web app works
 --OK-- 2. Modify it to show a plot
 --OK-- 3. Link drawing functions to the web app's callback(s)
-4. Make a webapp:
+--OK-- 4. Make a webapp:
 	--OK-- input: ["lon, lat"], z of observer
-	output: 
+	--OK-- output: 
 		--OK-- plot of the block's layout 
-		drawing of the silhouette
+		--OK-- drawing of the silhouette
 
 First, let's look at the tutoriall web app.
 
@@ -985,8 +985,18 @@ I think it will be great to store the query data and the already generated silho
 I got the block plotting function to work nicely. Under the route mapping name '/block_map'.
 
 Next, let's see how fast (and well) does the silhouette drawing algorithm run.
-
 In /DrawSilhouette/Block_Silhouette.ipynb, I implemented this, and seems to run quite fast.
+
+
+Things to do before the demo is ready:
+1. Plot the Sun's path on the silhouette
+2. Display silhouette on web app for the given day
+3. Calculate percentage of sunlight for the given day
+4. Extend the plotting range to 9 blocks around the observer
+
+
+
+
 
 
 
