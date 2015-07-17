@@ -989,13 +989,21 @@ In /DrawSilhouette/Block_Silhouette.ipynb, I implemented this, and seems to run 
 
 
 Things to do before the demo is ready:
-1. Plot the Sun's path on the silhouette
+--OK-- 1. Plot the Sun's path on the silhouette
 2. Display silhouette on web app for the given day
-3. Calculate percentage of sunlight for the given day
+--OK-- 3. Calculate percentage of sunlight for the given day
 4. Extend the plotting range to 9 blocks around the observer
 
+---------------
+Day 10 - Jul 17
+---------------
 
-
+Things to do:
+--OK-- 1. Add silhouette plotting capability to web app.
+2. Prepare slides.
+3. Extend web apps capabilities:
+	- investigate blocks around the selected block
+	- plot only the buildings on the block map which are higher than the observer
 
 
 

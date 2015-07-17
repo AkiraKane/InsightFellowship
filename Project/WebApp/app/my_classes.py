@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 import datetime as dt
+from dateutil.parser import parse
 import pymysql as mdb
 
 # class to store a single node of a building
