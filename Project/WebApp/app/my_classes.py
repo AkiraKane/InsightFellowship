@@ -175,6 +175,18 @@ class Silhouette:
             ax.fill_between(phi_list, 0, theta_list, color=color, facecolor=color)
         else:
             ax.plot(phi_list, theta_list, color=color, marker=marker)
+
+        # plot East, South and West markers as vertical lines
+        gray_color = '#909090'
+        ax.plot([-90, -90], [0, 90], color=gray_color)
+        ax.plot([0, 0], [0, 90], color=gray_color)
+        ax.plot([90, 90], [0, 90], color=gray_color)
+
+        plt.text(-179, 1, 'N', color=gray_color)
+        plt.text(-89, 1, 'E', color=gray_color)
+        plt.text(1, 1, 'S', color=gray_color)
+        plt.text(91, 1, 'W', color=gray_color)
+        plt.text(175, 1, 'N', color=gray_color)
     
     def add_roof(self, roof):
         # find the cliffs that are between the roof's phi1 and phi2

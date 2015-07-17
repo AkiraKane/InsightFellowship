@@ -11,7 +11,7 @@ con = mdb.connect('localhost', 'root', '123', 'Manhattan_buildings')
 @app.route('/input')
 def input():
   # default values
-  LATITUTE_DEFAULT = 40.767946, 
+  LATITUTE_DEFAULT = 40.767946 
   LONGITUDE_DEFAULT = -73.981831
   FLOOR_DEFAULT = 0
   MONTH_DEFAULT = 6
@@ -266,10 +266,7 @@ def draw_silhouette():
   y_id_list = []
 
 
-  # initialize figure
-  fig = plt.figure()
-  ax = fig.add_subplot(111)
-
+  
   # empty Silhouette
   sil = Silhouette()
 
@@ -380,6 +377,10 @@ def draw_silhouette():
   v = sun.calculate_visibility(sil)
   message = str(v[0]) + ' min sunny / ' + str(v[1]) + ' min total'
 
+  # draw figure
+  fig = plt.figure()
+  ax = fig.add_subplot(111)
+
   sun.draw(ax)       
   sil.draw(ax)
 
@@ -390,6 +391,7 @@ def draw_silhouette():
   ax.set_aspect('equal', adjustable='box')
   fig.set_size_inches(10, 2.5)
 
+  #  send figure out
   canvas = FigureCanvas(fig)
   png_output = StringIO.StringIO()
   canvas.print_png(png_output)

@@ -51,11 +51,20 @@
     </nav>
 
 
-<br><br>
+<br><br><br><br>
 
-    <div class = "container">
+
+      <table style="width:100%",   cellspacing=50>
+        <tr>
+          <table style="width:100%"   cellspacing=50>
+            <tr>
+              <td>
+                <font color="white">placeholder text </font>
+              </td>
+              <td>
+                
+<!--     <div class = "container">
       <div class="starter-template">
-          <!-- <h2>Input Page</h2> -->
           <br>
           <p>Enter location</p>
           <p>Examples:</p>
@@ -63,7 +72,13 @@
           <p>40.711604, -74.013638</p>
           <p>40.703614, -74.016030</p>
       </div>
-      
+ -->      
+    <h2>Enter location and day</h2>
+    <p>Examples:</p>
+    <p>40.756636, -73.986362</p>
+    <p>40.711604, -74.013638</p>
+    <p>40.703614, -74.016030</p>
+  
       <form  action="/input" method="GET">
         <div class="form-group">
           <label for="Address">Address:</label>
@@ -81,14 +96,35 @@
       </form>
     </div>
 
+              </td>
     
-    <br>
-    <img src="./silhouette?lon={{observer_lon}}&lat={{observer_lat}}&z={{observer_z}}&day={{day}}&month={{month}}">
-    
-    <br>
-    <br>
-    <img src="./block_map?lon={{observer_lon}}&lat={{observer_lat}}&z={{observer_z}}">
+              <td>
+                
+    <img src="./block_map?lon={{observer_lon}}&lat={{observer_lat}}&z={{observer_z}}" width="450" height="450">
 
+              </td>
+          </tr>
+        </table> 
+        </tr>
+
+        <tr>
+          <td>
+            <br>
+            <font color="white">placeholder text </font>
+            <img src="./silhouette?lon={{observer_lon}}&lat={{observer_lat}}&z={{observer_z}}&day={{day}}&month={{month}}" height="250">
+          </td>
+        </tr>
+    </table>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+
+    
     
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
