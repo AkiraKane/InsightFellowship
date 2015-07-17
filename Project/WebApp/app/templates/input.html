@@ -53,21 +53,17 @@
 
 <br><br>
 
-  <div class="container">
-
-    <div class="starter-template">
-        <!-- <h2>Input Page</h2> -->
-        <br>
-        <p>Enter location</p>
-        <p>Examples:</p>
-        <p>40.756636, -73.986362</p>
-        <p>40.767946, -73.981831</p>
-        <p>40.758717, -73.985164</p>
-        <p>40.711604, -74.013638</p>
-    </div>
-
     <div class = "container">
-
+      <div class="starter-template">
+          <!-- <h2>Input Page</h2> -->
+          <br>
+          <p>Enter location</p>
+          <p>Examples:</p>
+          <p>40.756636, -73.986362</p>
+          <p>40.711604, -74.013638</p>
+          <p>40.703614, -74.016030</p>
+      </div>
+      
       <form  action="/input" method="GET">
         <div class="form-group">
           <label for="Address">Address:</label>
@@ -79,19 +75,21 @@
           <label for="Day">Day of year:</label>
           <input type="text" id="Day" name='Day' placeholder="e.g. 4/21">
         </div>
-
         <div>
           <button type="submit" class="btn btn-default btn-lg">Show!</button>
         </div>
-
       </form>
     </div>
+
     
     <br>
     <img src="./silhouette?lon={{observer_lon}}&lat={{observer_lat}}&z={{observer_z}}&day={{day}}&month={{month}}">
-    <img src="./block_map?lon={{observer_lon}}&lat={{observer_lat}}&z={{observer_z}}">
     
+    <br>
+    <br>
+    <img src="./block_map?lon={{observer_lon}}&lat={{observer_lat}}&z={{observer_z}}">
 
+    
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
 

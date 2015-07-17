@@ -11,8 +11,8 @@ con = mdb.connect('localhost', 'root', '123', 'Manhattan_buildings')
 @app.route('/input')
 def input():
   # default values
-  LATITUTE_DEFAULT = 40.756636
-  LONGITUDE_DEFAULT = -73.986362
+  LATITUTE_DEFAULT = 40.767946, 
+  LONGITUDE_DEFAULT = -73.981831
   FLOOR_DEFAULT = 0
   MONTH_DEFAULT = 6
   DAY_DEFAULT = 23
@@ -89,23 +89,59 @@ def draw_block():
     x_grid = np.arange(x_min, x_max, x_step)
     y_grid = np.arange(y_min, y_max, y_step)
 
+
+  # initialize figure
+  fig = plt.figure()
+  ax = fig.add_subplot(111)
+
+  x_id_list = []
+  y_id_list = []
+
   # determine integer ids of block
   cart = convert_to_cartesian(obs_lon, obs_lat, mean_lon, mean_lat, Earth_radius)
   t = find_my_block(cart.x, cart.y, x_grid, y_grid)
-  x_id = t[0]
-  y_id = t[1]
+  x_id_list.append(t[0])
+  y_id_list.append(t[1])
 
-  block_id = None
-  with con: 
-    cur = con.cursor()
-    # get block_id
-    cur.execute("SELECT Id\
-                    FROM Blocks\
-                    WHERE X_id = " + str(x_id) + "\
-                    AND Y_id = " + str(y_id) + "\
-    ")
-    result = cur.fetchall()
-    
+  # generate a list of neighboring block ids:
+  x_id_list.append(t[0] + 1)
+  y_id_list.append(t[1])
+
+  x_id_list.append(t[0] + 1)
+  y_id_list.append(t[1] - 1)
+
+  x_id_list.append(t[0])
+  y_id_list.append(t[1] - 1)
+  
+  x_id_list.append(t[0] - 1)
+  y_id_list.append(t[1] - 1)
+
+  x_id_list.append(t[0] - 1)
+  y_id_list.append(t[1])
+
+  x_id_list.append(t[0] - 1)
+  y_id_list.append(t[1] + 1)
+
+  x_id_list.append(t[0])
+  y_id_list.append(t[1] + 1)
+
+  x_id_list.append(t[0] + 1)
+  y_id_list.append(t[1] + 1)
+
+  for i in range(0, len(x_id_list)):
+    x_id = x_id_list[i]
+    y_id = y_id_list[i]
+    block_id = None
+    with con: 
+      cur = con.cursor()
+      # get block_id
+      cur.execute("SELECT Id\
+                      FROM Blocks\
+                      WHERE X_id = " + str(x_id) + "\
+                      AND Y_id = " + str(y_id) + "\
+      ")
+      result = cur.fetchall()
+      
     if result:
       block_id = result[0][0]
       
@@ -150,24 +186,22 @@ def draw_block():
         else:
           i += 1
 
-  # initialize figure
-  fig = plt.figure()
-  ax = fig.add_subplot(111)
-
-  for key in buildings:
-    # set color of the buildings
-    if buildings[key].z < 20:
-      color = 'k'
-    elif buildings[key].z < 50:
-      color = 'b'
-    elif buildings[key].z < 100:
-      color = 'g'
-    elif buildings[key].z < 200:
-      color = 'r'
-    else:
-      color = 'y'
-    # plot each building
-    buildings[key].plot_footprint(ax, color) 
+    
+    for key in buildings:
+      if buildings[key].z > obs_z:
+        # set color of the buildings
+        if buildings[key].z < 20:
+          color = 'k'
+        elif buildings[key].z < 50:
+          color = 'b'
+        elif buildings[key].z < 100:
+          color = 'g'
+        elif buildings[key].z < 200:
+          color = 'r'
+        else:
+          color = 'y'
+        # plot each building
+        buildings[key].plot_footprint(ax, color) 
 
   # plot observer's location
   ax.plot([cart.x], [cart.y], color='k', marker='o', markersize=10)
@@ -176,7 +210,7 @@ def draw_block():
   ax.plot([cart.x, cart.x], [cart.y - length, cart.y + length], color='k')
   ax.plot([cart.x - length, cart.x + length], [cart.y, cart.y], color='k')
 
-  ax.set_aspect('equal', adjustable='box')
+  ax.set_aspect('equal')
   fig.set_size_inches(8, 8)
 
   canvas = FigureCanvas(fig)
@@ -228,78 +262,114 @@ def draw_silhouette():
     x_grid = np.arange(x_min, x_max, x_step)
     y_grid = np.arange(y_min, y_max, y_step)
 
-  # determine integer ids of block
-  cart = convert_to_cartesian(obs_lon, obs_lat, mean_lon, mean_lat, Earth_radius)
-  t = find_my_block(cart.x, cart.y, x_grid, y_grid)
-  x_id = t[0]
-  y_id = t[1]
+  x_id_list = []
+  y_id_list = []
 
-  block_id = None
-  with con: 
-    cur = con.cursor()
-    # get block_id
-    cur.execute("SELECT Id\
-                    FROM Blocks\
-                    WHERE X_id = " + str(x_id) + "\
-                    AND Y_id = " + str(y_id) + "\
-    ")
-    result = cur.fetchall()
-    
-    if result:
-      block_id = result[0][0]
-      
-      # select all nodes in the block
-      cur.execute("SELECT X, Y, Z, \
-                      Order_in_building,\
-                      Number_of_nodes_in_building,\
-                      Building_id \
-                      FROM Nodes \
-                      WHERE Block_id = " + str(block_id) + " \
-                      AND Z > 0 \
-      ")
-      rows = cur.fetchall()
-      
-      # load it into a dict of buildings
-      buildings = {}
-      i = 0
-      while i < len(rows):
-        
-        # find the first "1" in the Order_in_building column
-        if rows[i][3] == 1:
-          
-          building_id = rows[i][5]
-          building = Building()
-          
-          number_of_nodes = rows[i][4]
-          
-          # loop through the consecutive nodes
-          for j in range(0, number_of_nodes):
-            i_cursor = i + j
-            x = rows[i_cursor][0]
-            y = rows[i_cursor][1]
-            building.nodes.append(Node(x,y))
-          
-          z = rows[i_cursor][2]
-          building.z = z
-          building.calculate_center()
-          
-          buildings[building_id] = building
-          
-          i += number_of_nodes
-        else:
-          i += 1
 
   # initialize figure
   fig = plt.figure()
   ax = fig.add_subplot(111)
 
-  # calculate silhouette
+  # empty Silhouette
   sil = Silhouette()
-  for key in buildings:
-    if buildings[key].z > obs_z:
-      roofs = get_roofs(cart.x, cart.y, obs_z, buildings[key])
-      for roof in roofs:
-        sil.add_roof(roof)
+
+
+  # determine integer ids of block
+  cart = convert_to_cartesian(obs_lon, obs_lat, mean_lon, mean_lat, Earth_radius)
+  t = find_my_block(cart.x, cart.y, x_grid, y_grid)
+  x_id_list.append(t[0])
+  y_id_list.append(t[1])
+
+  # generate a list of neighboring block ids:
+  x_id_list.append(t[0] + 1)
+  y_id_list.append(t[1])
+
+  x_id_list.append(t[0] + 1)
+  y_id_list.append(t[1] - 1)
+
+  x_id_list.append(t[0])
+  y_id_list.append(t[1] - 1)
+  
+  x_id_list.append(t[0] - 1)
+  y_id_list.append(t[1] - 1)
+
+  x_id_list.append(t[0] - 1)
+  y_id_list.append(t[1])
+
+  x_id_list.append(t[0] - 1)
+  y_id_list.append(t[1] + 1)
+
+  x_id_list.append(t[0])
+  y_id_list.append(t[1] + 1)
+
+  x_id_list.append(t[0] + 1)
+  y_id_list.append(t[1] + 1)
+
+  for i in range(0, len(x_id_list)):
+    x_id = x_id_list[i]
+    y_id = y_id_list[i]
+    block_id = None
+
+    with con: 
+      cur = con.cursor()
+      # get block_id
+      cur.execute("SELECT Id\
+                      FROM Blocks\
+                      WHERE X_id = " + str(x_id) + "\
+                      AND Y_id = " + str(y_id) + "\
+      ")
+      result = cur.fetchall()
+      
+      if result:
+        block_id = result[0][0]
+        
+        # select all nodes in the block
+        cur.execute("SELECT X, Y, Z, \
+                        Order_in_building,\
+                        Number_of_nodes_in_building,\
+                        Building_id \
+                        FROM Nodes \
+                        WHERE Block_id = " + str(block_id) + " \
+                        AND Z > 0 \
+        ")
+        rows = cur.fetchall()
+        
+        # load it into a dict of buildings
+        buildings = {}
+        i = 0
+        while i < len(rows):
+          
+          # find the first "1" in the Order_in_building column
+          if rows[i][3] == 1:
+            
+            building_id = rows[i][5]
+            building = Building()
+            
+            number_of_nodes = rows[i][4]
+            
+            # loop through the consecutive nodes
+            for j in range(0, number_of_nodes):
+              i_cursor = i + j
+              x = rows[i_cursor][0]
+              y = rows[i_cursor][1]
+              building.nodes.append(Node(x,y))
+            
+            z = rows[i_cursor][2]
+            building.z = z
+            building.calculate_center()
+            
+            buildings[building_id] = building
+            
+            i += number_of_nodes
+          else:
+            i += 1
+
+    # add building's roofs to silhouette
+    for key in buildings:
+      if buildings[key].z > obs_z:
+        roofs = get_roofs(cart.x, cart.y, obs_z, buildings[key])
+        for roof in roofs:
+          sil.add_roof(roof)
 
   # calculate sun
   this_year = dt.datetime.today().year

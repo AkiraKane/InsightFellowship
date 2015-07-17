@@ -1000,10 +1000,10 @@ Day 10 - Jul 17
 
 Things to do:
 --OK-- 1. Add silhouette plotting capability to web app.
-2. Prepare slides.
-3. Extend web apps capabilities:
-	- investigate blocks around the selected block
-	- plot only the buildings on the block map which are higher than the observer
+--OK-- 2. Prepare slides.
+--OK-- 3. Extend web apps capabilities:
+	--OK-- - investigate blocks around the selected block
+	--OK-- - plot only the buildings on the block map which are higher than the observer
 
 
 
