@@ -145,7 +145,7 @@ class Silhouette:
         self.cliffs.append(Cliff(-np.pi -1, 0,0))
         self.cliffs.append(Cliff(np.pi + 1, 0,0))
     
-    def draw(self, color='k', deg=True, marker="None"):
+    def draw(self, ax, color='k', deg=True, marker="None", fill=True):
         # set angle unit
         if deg:
             conversion_ratio = 180 / np.pi
@@ -170,12 +170,10 @@ class Silhouette:
         # phi_list.append(unit)
         # theta_list.append(self.cliffs[-1].theta_R * conversion_ratio)
         
-        plt.plot(phi_list, theta_list, color=color, marker=marker)
-        # plt.gca().set_aspect('equal', adjustable='box')
-        plt.gcf().set_size_inches(10, 2.5)
-        plt.axis((-unit, unit, 0, unit/2))
-        plt.show()
-        
+        if fill:
+            ax.fill_between(phi_list, 0, theta_list, color=color, facecolor=color)
+        else:
+            ax.plot(phi_list, theta_list, color=color, marker=marker)
     
     def add_roof(self, roof):
         # find the cliffs that are between the roof's phi1 and phi2
