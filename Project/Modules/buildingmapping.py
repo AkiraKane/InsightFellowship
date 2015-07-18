@@ -163,3 +163,68 @@ class Block:
             x_list.append(node.x)
             y_list.append(node.y)
         ax.plot(x_list, y_list)
+
+
+def append_buildings_in_block(db_connection, block_xid, block_yid):
+    with db_connection: 
+        cur = db_connection.cursor()
+        # get block_id
+        cur.execute("SELECT \
+            Id\
+            FROM Blocks\
+            WHERE X_id = " + str(block_xid) + "\
+                AND Y_id = " + str(block_yid) + "\
+        ")
+        result = cur.fetchall()
+        
+    if result:
+        block_id = result[0][0]
+        
+        # select all nodes in the block
+        with db_connection: 
+            cur = db_connection.cursor()
+            cur.execute("SELECT \
+                X,\
+                Y,\
+                Z, \
+                Order_in_building,\
+                Number_of_nodes_in_building,\
+                Building_id \
+                FROM Nodes \
+                WHERE Block_id = " + str(block_id) + " \
+                    AND Z > 0 \
+                ORDER BY Building_id, Order_in_building\
+            ")
+            rows = cur.fetchall()
+        
+        # load it into buildings dict
+        buildings = {}
+        i = 0
+        while i < len(rows):
+            
+            # find the first "1" in the Order_in_building column
+            if rows[i][3] == 1:
+                
+                building_id = rows[i][5]
+                building = Building()
+                
+                number_of_nodes = rows[i][4]
+                
+                # loop through the consecutive nodes
+                for j in range(0, number_of_nodes):
+                    i_cursor = i + j
+                    x = rows[i_cursor][0]
+                    y = rows[i_cursor][1]
+                    building.nodes.append(Node(x,y))
+                
+                z = rows[i_cursor][2]
+                building.z = z
+                building.calculate_center()
+                
+                buildings[building_id] = building
+                
+                i += number_of_nodes
+            else:
+                i += 1
+
+    return buildings

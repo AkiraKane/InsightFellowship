@@ -2,77 +2,109 @@
 
 import re
 import numpy as np
+import datetime as dt
+from dateutil.parser import parse
 
-def get_GPS_from_address(address):
-    match = re.search(r'(-?\d+\.?\d*)\s*,?\s*(-?\d+\.?\d*)', address)
-    if match:
-        lat = float(match.group(1))
-        lon = float(match.group(2))
-    return (lon, lat)
-
-# convert (lon,lat) to (x,y) on the local map
-def convert_to_cartesian(lon, lat, mean_lon, mean_lat, Earth_radius):
-    deg2rad = np.pi/180
-    cos_mean_lat = np.cos(mean_lat * deg2rad)
-    x = Earth_radius * cos_mean_lat * (lon - mean_lon)* deg2rad
-    y = Earth_radius * (lat - mean_lat)* deg2rad
-    return (x,y)
-
-# finds the block the Node(x,y) coordinates are in
-# (blocks are indexed by (x_index, y_index), starting from (0,0) )
-def find_my_block(x_my, y_my, x_grid, y_grid):
-    # find x_index of the block
-    x_index = -1
-    for x in x_grid:
-        if x_my > x:
-            x_index += 1
-        else:
-            break
+LATITUTE_DEFAULT = 40.767946 
+LONGITUDE_DEFAULT = -73.981831
+ALTITUDE_DEFAULT = 0
     
-    # find y_index of the block
-    y_index = -1
-    for y in y_grid:
-        if y_my > y:
-            y_index += 1
-        else:
-            break
+
+class Observer:
+    def __init__(self, \
+            lon=LONGITUDE_DEFAULT, 
+            lat=LATITUTE_DEFAULT,\
+            alt=ALTITUDE_DEFAULT,\
+            city_lon=-73.973351,\
+            city_lat=40.771803,\
+            planet_radius=6371009,\
+            date=dt.datetime.today().date()\
+        ):
+        self.lon = lon
+        self.lat = lat
+        self.city_lon = city_lon
+        self.city_lat = city_lat
+        self.planet_radius = planet_radius
+        self.x = None
+        self.y = None
+        self.z = alt
+        self.block_xid = None
+        self.block_yid = None
+        self.date = date
+
+    def get_date(self, date_str):
+        # extract month and day from string such as "4/13"
+        try:
+            self.date = parse(date_str)
+        except:
+            print "Warning: input date cannot be parsed, using default: today()"
+
+
+    def get_geocoordinates(self, address, floor):
+        if address:
+            match = re.search(r'(-?\d+\.?\d*)\s*,?\s*(-?\d+\.?\d*)', address)
+            if match:
+                self.lat = float(match.group(1))
+                self.lon = float(match.group(2))
+
+        if floor:
+            match = re.search(r'(\d+)', address)
+            if match:
+                self.z = float(floor) * 3   # 1 floor =approx= 3 meters
+            
+
+    # convert (lon,lat) to (x,y) on the local map
+    def convert_to_cartesian(self):
+        deg2rad = np.pi/180
+        cos_mean_lat = np.cos(self.city_lat * deg2rad)
+        self.x = self.planet_radius * cos_mean_lat * (self.lon - self.city_lon)* deg2rad
+        self.y = self.planet_radius * (self.lat - self.city_lat)* deg2rad
     
-    return (x_index, y_index)
+
+    # finds the block the Node(x,y) coordinates are in
+    # (blocks are indexed by (x_index, y_index), starting from (0,0) )
+    def find_my_block(self, x_grid, y_grid):
+        # find x_index of the block
+        x_index = -1
+        for x in x_grid:
+            if self.x > x:
+                x_index += 1
+            else:
+                break
+        
+        # find y_index of the block
+        y_index = -1
+        for y in y_grid:
+            if self.y > y:
+                y_index += 1
+            else:
+                break
+        
+        self.block_xid = x_index
+        self.block_yid = y_index
 
 
-def get_neighboring_block_ids(lon, lat, mean_lon, mean_lat, Earth_radius, x_grid, y_grid):
-    x_id_list = []
-    y_id_list = []
 
-    # determine integer ids of block
-    cart = convert_to_cartesian(lon, lat, mean_lon, mean_lat, Earth_radius)
-    t = find_my_block(cart[0], cart[1], x_grid, y_grid)
-    x_id_list.append(t[0])
-    y_id_list.append(t[1])
+    def get_neighboring_block_ids(self):
+        
+        # relative integer coordinates of neighboring blocks (including the center block)
+        deltax = [0,1,1,0,-1,-1,-1,0,1]
+        deltay = [0,0,1,1,1,0,-1,-1,-1]
 
-    # generate a list of neighboring block ids:
-    x_id_list.append(t[0] + 1)
-    y_id_list.append(t[1])
+        xid_list = []
+        yid_list = []
+        for i in range(0, len(deltax)):
+            xid_list.append(self.block_xid + deltax[i])
+            yid_list.append(self.block_yid + deltay[i])
+        
+        return (xid_list, yid_list)
 
-    x_id_list.append(t[0] + 1)
-    y_id_list.append(t[1] - 1)
 
-    x_id_list.append(t[0])
-    y_id_list.append(t[1] - 1)
-    
-    x_id_list.append(t[0] - 1)
-    y_id_list.append(t[1] - 1)
+    def plot_observers_location(self, ax, color='k'):
+        # center dot
+        ax.plot([self.x], [self.y], color=color, marker='o', markersize=10)
 
-    x_id_list.append(t[0] - 1)
-    y_id_list.append(t[1])
-
-    x_id_list.append(t[0] - 1)
-    y_id_list.append(t[1] + 1)
-
-    x_id_list.append(t[0])
-    y_id_list.append(t[1] + 1)
-
-    x_id_list.append(t[0] + 1)
-    y_id_list.append(t[1] + 1)
-
-    return (x_id_list, y_id_list)
+        # corss
+        L = 300
+        ax.plot([self.x, self.x], [self.y - L, self.y + L], color=color)
+        ax.plot([self.x - L, self.x + L], [self.y, self.y], color=color)
