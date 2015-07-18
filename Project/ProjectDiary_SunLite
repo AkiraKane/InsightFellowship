@@ -1008,10 +1008,97 @@ Things to do:
 
 Further work:
 1. Add plot about the Sun's power over day
-2. Add 
 
 
 
+---------------
+Day 11 - Jul 18
+---------------
+SunnyMinutes app now works.
+Inputs:
+	- Address as "<<lat>>, <<lon>>"
+	- floor number
+	- day of the year as "month/day"
+Outputs:
+	- plot of the 9 closest blocks around the observer
+	- plot of the cities skyline seen by the observer with the sun's path on it
+	- put a text " # min sunny / # min total" on the plot
+
+Further work to be done:
+ - Make it pretty
+ - Make it show a polar plot of the skyline and sun's path
+ - Consolidate code
+ - Get the Address field take real address strings and output geocoordiantes using google's API
+ - embed google maps
+ - get the google maps window return a coordinate to the location field upon clicking on it
+ - get scores for morning/ midday/ afternoon light
+ - get scores for sunrise and sunset
+
+
+Ideas I got from feedbacks from Friday:
+ - add the selling point of installing solar panels outside the windows
+ - add health related packaging: 
+ 	+ required amount of light to avoid depression
+ 	+ relationship between sunlight exposure and mental health
+ - estimate if the sun is going to be blocked by clouds
+ - add some kind of validation
+ - explain the Node and Building objects with drawing
+ - explain algorithm of drawing the silhouette better
+ - use mechanical turk to gather data on how well people can guess the sunny minutes
+
+To do list for today:
+	--OK-- 1. get a list of functions and classes
+	2. create individual package files
+	3. create functions to run in views.py (make it look like a main() )
+	4. figure out how google's API works
+	5. implement address -> goecoordinates function with google's API
+	6. create polar plot
+	7. display sunny/total minutes as text
+	8. display winter/summer solstice and sprin/fall equinox sunny minutes values
+
+Further work:
+	- add capability to investigate all blocks in the database using their coordinates and max height
+	- embed google maps, centered on the search point
+	- figure out how to get geocoordinate from a click on the embedded map
+	- feed the geocoordinates to calculation
+	- dispay morning/midday/afternoon sun scores
 
 
 
+List of classes (and their functions):
+	Node: show()
+	Building: show(), plot_footprint(), calculate_center()
+	Block: calculate_max_z(), plot_on_map()
+	Roof: show()
+	Cliff: show()
+	Silhouette: draw(), add_roof()
+	Sun_path: get_date(), calcualte_path(), calculate_visibility(), draw()
+
+
+List of standalone functions:
+	is_outside(boundary_node_1, boundary_node_2, building_node)
+	assign_to_block(building_id, building, x_grid, y_grid, blocks)
+	get_GPS_from_address(address, lon, lat)
+	convert_to_cartesian(lon, lat, mean_lon, mean_lat, Earth_radius)
+	find_my_block(x_my, y_my, x_grid, y_grid)
+	get_roofs(obs_x, obs_y, obs_z, building, blur_epsilon)
+	get_city_vectors(lat, lon, greenwich_time_minutes)
+	get_sun_vector(date)
+	(and the rendering functions for each route in views.py)
+
+
+I'll
+	- leave my_classes.py intact
+	OK - put Node, Building, Block into one file, and
+	OK - put Roof, Cliff, Silhouette into another, and
+	OK - put Sun_path will be in a third
+	- make a new class for grids
+	OK - add assign_to_block to Building class
+	OK - add get_roofs to Building class
+	OK - add get_city_vectors and get_sun_vector to Sun_path class
+
+	functions not in classes:
+		get_GPS_from_address(address, lon, lat)
+		convert_to_cartesian(lon, lat, mean_lon, mean_lat, Earth_radius)
+		find_my_block(x_my, y_my, x_grid, y_grid)
+		

@@ -260,7 +260,7 @@ class Silhouette:
                 self.cliffs.insert(insert_index_1, cliff1)
             
 def get_GPS_from_address(address, lon=0, lat=0):
-    match = re.search(r'(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)', address)
+    match = re.search(r'(-?\d+\.?\d*)\s*,?\s*(-?\d+\.?\d*)', address)
     if match:
         lat = float(match.group(1))
         lon = float(match.group(2))
