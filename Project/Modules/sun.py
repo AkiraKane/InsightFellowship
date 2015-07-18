@@ -1,5 +1,8 @@
 # sun modul
 
+import numpy as np
+import datetime as dt
+
 class SunPath:
     
     def __init__(self, date=None, lat=None, lon=None):

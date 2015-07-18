@@ -1,18 +1,21 @@
 # skyline module
 
+import numpy as np
+import matplotlib.pyplot as plt
 
+# class to store the geometry of a rooftop on the skyline
 class Roof:
-    def __init__(self, phi1=None, phi2=None, theta=None):
-        self.phi1 = phi1
-        self.phi2 = phi2
-        self.theta = theta
+    def __init__(self, tup=(-1, 1, -1)):
+        self.phi1 = tup[0]
+        self.phi2 = tup[1]
+        self.theta = tup[2]
     
     def show(self):
         print "(phi1=" + str(self.phi1) + ", phi2=" + str(self.phi2) + ", theta=" + str(self.theta) +")"   
 
 
 
-
+# class to store the geometry of the steps between consecutive rooftops on the skyline
 class Cliff:
     def __init__(self, phi=None, theta_L=None, theta_R=None ):
         self.phi = phi
@@ -24,7 +27,7 @@ class Cliff:
     
 
 
-
+# class to store the skyline
 class Silhouette:
     
     def __init__(self):
@@ -75,12 +78,12 @@ class Silhouette:
         plt.text(91, 1, 'W', color=gray_color)
         plt.text(175, 1, 'N', color=gray_color)
     
+
     def add_roof(self, roof):
         # find the cliffs that are between the roof's phi1 and phi2
         cliffs_inside = []
         insert_index_1 = 0
         insert_index_2 = 0
-        
 
         i = 0
         while self.cliffs[i].phi < roof.phi1:
@@ -90,7 +93,6 @@ class Silhouette:
         while self.cliffs[i].phi < roof.phi2:
             insert_index_2 += 1
             i += 1
-            
             
         # in case the entire roof falls between too cliffs
         if not self.cliffs[insert_index_1 : insert_index_2]:

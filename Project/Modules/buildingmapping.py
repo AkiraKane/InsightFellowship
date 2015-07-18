@@ -1,5 +1,6 @@
 # buildingmapping module
 
+import numpy as np
 
 # class to store a single node of a building
 class Node:
@@ -10,6 +11,17 @@ class Node:
     def show(self):
         print '[x=' + str(self.x) + ', y=' + str(self.y) + ']'
 
+    # function to determine if a node lies outside a boundary piece
+    def is_outside(self, boundary_node_1, boundary_node_2):
+        ux = self.x - boundary_node_1.x
+        uy = self.y - boundary_node_1.y
+        vx = boundary_node_2.x - boundary_node_1.x
+        vy = boundary_node_2.y - boundary_node_1.y
+        
+        if ((vx*uy) > (vy*ux)):
+            return True
+        else:
+            return False
 
 
 
@@ -81,7 +93,7 @@ class Building:
         # gather node coordinates
         dx_list = []
         dy_list = []
-        for node in slef.nodes:
+        for node in self.nodes:
             dx_list.append(node.x)
             dy_list.append(node.y)
         
@@ -109,14 +121,14 @@ class Building:
             # check if the building crosses the North line
             if dy_list[i] > 0 and dy_list[i+1] > 0 and dx_list[i] * dx_list[i+1] < 0:
                 # if so, make two separate roof objects, on the two edges of the silhouette
-                roof1 = Roof(-np.pi - blur_epsilon, phi1 + blur_epsilon, theta)
-                roof2 = Roof(phi2 - blur_epsilon, np.pi + blur_epsilon, theta)
+                roof1 = (-np.pi - blur_epsilon, phi1 + blur_epsilon, theta)
+                roof2 = (phi2 - blur_epsilon, np.pi + blur_epsilon, theta)
                 roofs.append(roof1)
                 roofs.append(roof2)
                 
             # if not, make a single roof object
             else:
-                roof = Roof(phi1 - blur_epsilon, phi2 + blur_epsilon, theta)
+                roof = (phi1 - blur_epsilon, phi2 + blur_epsilon, theta)
                 roofs.append(roof)
         
         return roofs

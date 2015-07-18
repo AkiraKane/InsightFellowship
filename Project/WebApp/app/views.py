@@ -1,10 +1,27 @@
+# modules for the web app
 from flask import render_template, request, make_response
 from app import app
 import StringIO
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from my_classes import *
+# modules for the processing
+# import re
+# import csv
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# import matplotlib.cm as cm
+# import numpy as np
+import datetime as dt
+from dateutil.parser import parse
+import pymysql as mdb
+
+# my modules
+from buildingmapping import *
+from skyline import *
+from sun import *
+from observer import *
+
 
 con = mdb.connect('localhost', 'root', '123', 'Manhattan_buildings')
 
@@ -94,40 +111,9 @@ def draw_block():
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    x_id_list = []
-    y_id_list = []
-
-    # determine integer ids of block
     cart = convert_to_cartesian(obs_lon, obs_lat, mean_lon, mean_lat, Earth_radius)
-    t = find_my_block(cart.x, cart.y, x_grid, y_grid)
-    x_id_list.append(t[0])
-    y_id_list.append(t[1])
-
-    # generate a list of neighboring block ids:
-    x_id_list.append(t[0] + 1)
-    y_id_list.append(t[1])
-
-    x_id_list.append(t[0] + 1)
-    y_id_list.append(t[1] - 1)
-
-    x_id_list.append(t[0])
-    y_id_list.append(t[1] - 1)
+    (x_id_list, y_id_list) = get_neighboring_block_ids(obs_lon, obs_lat, mean_lon, mean_lat, Earth_radius, x_grid, y_grid)
     
-    x_id_list.append(t[0] - 1)
-    y_id_list.append(t[1] - 1)
-
-    x_id_list.append(t[0] - 1)
-    y_id_list.append(t[1])
-
-    x_id_list.append(t[0] - 1)
-    y_id_list.append(t[1] + 1)
-
-    x_id_list.append(t[0])
-    y_id_list.append(t[1] + 1)
-
-    x_id_list.append(t[0] + 1)
-    y_id_list.append(t[1] + 1)
-
     for i in range(0, len(x_id_list)):
         x_id = x_id_list[i]
         y_id = y_id_list[i]
@@ -204,11 +190,12 @@ def draw_block():
                 buildings[key].plot_footprint(ax, color) 
 
     # plot observer's location
-    ax.plot([cart.x], [cart.y], color='k', marker='o', markersize=10)
+    ax.plot([cart[0]], [cart[1]], color='k', marker='o', markersize=10)
+
     # plot North-South, East-West lines crossing at the observer's location
     length = 300
-    ax.plot([cart.x, cart.x], [cart.y - length, cart.y + length], color='k')
-    ax.plot([cart.x - length, cart.x + length], [cart.y, cart.y], color='k')
+    ax.plot([cart[0], cart[0]], [cart[1] - length, cart[1] + length], color='k')
+    ax.plot([cart[0] - length, cart[0] + length], [cart[1], cart[1]], color='k')
 
     ax.set_aspect('equal')
     fig.set_size_inches(8, 8)
@@ -262,45 +249,13 @@ def draw_silhouette():
         x_grid = np.arange(x_min, x_max, x_step)
         y_grid = np.arange(y_min, y_max, y_step)
 
-    x_id_list = []
-    y_id_list = []
-
-
+    
+    cart = convert_to_cartesian(obs_lon, obs_lat, mean_lon, mean_lat, Earth_radius)
+    (x_id_list, y_id_list) = get_neighboring_block_ids(obs_lon, obs_lat, mean_lon, mean_lat, Earth_radius, x_grid, y_grid)
+    
     
     # empty Silhouette
     sil = Silhouette()
-
-
-    # determine integer ids of block
-    cart = convert_to_cartesian(obs_lon, obs_lat, mean_lon, mean_lat, Earth_radius)
-    t = find_my_block(cart.x, cart.y, x_grid, y_grid)
-    x_id_list.append(t[0])
-    y_id_list.append(t[1])
-
-    # generate a list of neighboring block ids:
-    x_id_list.append(t[0] + 1)
-    y_id_list.append(t[1])
-
-    x_id_list.append(t[0] + 1)
-    y_id_list.append(t[1] - 1)
-
-    x_id_list.append(t[0])
-    y_id_list.append(t[1] - 1)
-    
-    x_id_list.append(t[0] - 1)
-    y_id_list.append(t[1] - 1)
-
-    x_id_list.append(t[0] - 1)
-    y_id_list.append(t[1])
-
-    x_id_list.append(t[0] - 1)
-    y_id_list.append(t[1] + 1)
-
-    x_id_list.append(t[0])
-    y_id_list.append(t[1] + 1)
-
-    x_id_list.append(t[0] + 1)
-    y_id_list.append(t[1] + 1)
 
     for i in range(0, len(x_id_list)):
         x_id = x_id_list[i]
@@ -364,15 +319,15 @@ def draw_silhouette():
         # add building's roofs to silhouette
         for key in buildings:
             if buildings[key].z > obs_z:
-                roofs = get_roofs(cart.x, cart.y, obs_z, buildings[key])
-                for roof in roofs:
-                    sil.add_roof(roof)
+                roofs = buildings[key].get_roofs(cart[0], cart[1], obs_z)
+                for tup in roofs:
+                    sil.add_roof( Roof(tup) )
 
     # calculate sun
     this_year = dt.datetime.today().year
     request_date = dt.datetime(this_year, month, day)
 
-    sun = Sun_path(request_date, mean_lat, mean_lon)
+    sun = SunPath(request_date, mean_lat, mean_lon)
     sun.calculate_path()
     v = sun.calculate_visibility(sil)
     message = str(v[0]) + ' min sunny / ' + str(v[1]) + ' min total'
@@ -398,6 +353,7 @@ def draw_silhouette():
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
     return response 
+
 
 
 
