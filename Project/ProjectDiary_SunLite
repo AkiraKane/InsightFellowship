@@ -1050,7 +1050,7 @@ To do list for today:
 	--OK-- 1. get a list of functions and classes
 	--OK-- 2. create individual package files
 	3. create functions to run in views.py (make it look like a main() )
-	3a. add ORDER BY statement to SQL queries
+	--OK-- 3a. add ORDER BY statement to SQL queries
 	4. figure out how google's API works
 	5. implement address -> goecoordinates function with google's API
 	6. create polar plot

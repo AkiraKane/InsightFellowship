@@ -18,7 +18,6 @@ class Observer:
             city_lon=-73.973351,\
             city_lat=40.771803,\
             planet_radius=6371009,\
-            date=dt.datetime.today().date()\
         ):
         self.lon = lon
         self.lat = lat
@@ -30,14 +29,6 @@ class Observer:
         self.z = alt
         self.block_xid = None
         self.block_yid = None
-        self.date = date
-
-    def get_date(self, date_str):
-        # extract month and day from string such as "4/13"
-        try:
-            self.date = parse(date_str)
-        except:
-            print "Warning: input date cannot be parsed, using default: today()"
 
 
     def get_geocoordinates(self, address, floor):

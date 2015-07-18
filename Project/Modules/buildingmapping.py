@@ -177,10 +177,11 @@ def append_buildings_in_block(db_connection, block_xid, block_yid):
         ")
         result = cur.fetchall()
         
+    # load nodes in the block into dict
+    buildings = {}
     if result:
         block_id = result[0][0]
         
-        # select all nodes in the block
         with db_connection: 
             cur = db_connection.cursor()
             cur.execute("SELECT \
@@ -197,8 +198,6 @@ def append_buildings_in_block(db_connection, block_xid, block_yid):
             ")
             rows = cur.fetchall()
         
-        # load it into buildings dict
-        buildings = {}
         i = 0
         while i < len(rows):
             

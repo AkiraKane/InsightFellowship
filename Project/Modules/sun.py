@@ -2,18 +2,24 @@
 
 import numpy as np
 import datetime as dt
+from dateutil.parser import parse
 
 class SunPath:
     
-    def __init__(self, date=None, lat=None, lon=None):
+    def __init__(self, lat=None, lon=None, date=dt.datetime.today().date()):
         self.positions = []  # list of tuples (phi, theta)
         self.visible = []
         self.lat = lat
         self.lon = lon
         self.date = date
 
-    def get_date(self, year, month, day):
-        self.date = dt.datetime(year, month, day)
+    def get_date(self, date_str):
+        # extract month and day from string such as "4/13"
+        try:
+            self.date = parse(date_str)
+        except:
+            print "Warning: input date cannot be parsed, using default: today()"
+
 
     def get_sun_vector(self):
         # convert to datetime
