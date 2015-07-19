@@ -6,7 +6,7 @@ from dateutil.parser import parse
 
 class SunPath:
     
-    def __init__(self, lat=None, lon=None, date=dt.datetime.today().date()):
+    def __init__(self, lat=None, lon=None, date=dt.datetime.today()):
         self.positions = []  # list of tuples (phi, theta)
         self.visible = []
         self.lat = lat

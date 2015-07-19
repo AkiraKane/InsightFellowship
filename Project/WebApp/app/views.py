@@ -12,7 +12,7 @@ from matplotlib.figure import Figure
 # import matplotlib.pyplot as plt
 # import matplotlib.cm as cm
 # import numpy as np
-import datetime as dt
+# import datetime as dt
 import pymysql as mdb
 
 # my modules
@@ -22,8 +22,6 @@ from sun import *
 from observer import *
 
 
-con = mdb.connect('localhost', 'root', '123', 'Manhattan_buildings')
-
 #  declare global instances
 obs = Observer()
 sil = Silhouette()
@@ -32,46 +30,11 @@ buildings = {}
 x_grid = None
 y_grid = None
 
-# load basic geography of Manhattan
-with con:
-    cur = con.cursor()
-    cur.execute("SELECT \
-        Planet_radius, \
-        Mean_lon, \
-        Mean_lat \
-        FROM Cities \
-        WHERE Name = 'New York Manhattan'\
-    ")
-    result = cur.fetchall()[0]
-    obs.planet_radius = result[0]
-    obs.city_lon = result[1]
-    obs.city_lat = result[2]
 
-# load grid data 
-with con:
-    cur = con.cursor()
-    cur.execute("SELECT \
-        Xmin,\
-        Xmax,\
-        Xstep,\
-        Ymin,\
-        Ymax,\
-        Ystep\
-        FROM Grids \
-        WHERE Id = 1"\
-    )
-    result = cur.fetchall()[0]
+con = mdb.connect('localhost', 'root', '123', 'Manhattan_buildings')
 
-    x_min = result[0]
-    x_max = result[1]
-    x_step = result[2]
-    y_min = result[3]
-    y_max = result[4]
-    y_step = result[5]
-
-    x_grid = np.arange(x_min, x_max, x_step)
-    y_grid = np.arange(y_min, y_max, y_step)
-
+obs.load_basic_geography(con)
+(x_grid, y_grid) = load_grid_data(con)
 
 
 @app.route('/input')
@@ -111,7 +74,16 @@ def input():
     v = sun.calculate_visibility(sil)
     message = str(v[0]) + ' min sunny / ' + str(v[1]) + ' min total'
 
-    return render_template("input.html", message=message)
+    address_placeholder = str(obs.lat) + ', ' + str(obs.lon)
+    floor_placeholder = str(int(round(obs.z / 3.0)))
+    day_placeholder = str(sun.date.month) + '/' + str(sun.date.day)
+    return render_template(\
+        "input.html", \
+        message=message, \
+        address_placeholder=address_placeholder, \
+        floor_placeholder=floor_placeholder, \
+        day_placeholder=day_placeholder \
+    )
     
 
 

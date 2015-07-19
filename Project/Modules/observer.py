@@ -31,6 +31,21 @@ class Observer:
         self.block_yid = None
 
 
+    def load_basic_geography(self, db_connection):
+        with db_connection:
+            cur = db_connection.cursor()
+            cur.execute("SELECT \
+                Planet_radius, \
+                Mean_lon, \
+                Mean_lat \
+                FROM Cities \
+                WHERE Name = 'New York Manhattan'\
+            ")
+            result = cur.fetchall()[0]
+        self.planet_radius = result[0]
+        self.city_lon = result[1]
+        self.city_lat = result[2]
+
     def get_geocoordinates(self, address, floor):
         if address:
             match = re.search(r'(-?\d+\.?\d*)\s*,?\s*(-?\d+\.?\d*)', address)
@@ -39,7 +54,7 @@ class Observer:
                 self.lon = float(match.group(2))
 
         if floor:
-            match = re.search(r'(\d+)', address)
+            match = re.search(r'(\d+)', floor)
             if match:
                 self.z = float(floor) * 3   # 1 floor =approx= 3 meters
             
@@ -99,3 +114,31 @@ class Observer:
         L = 300
         ax.plot([self.x, self.x], [self.y - L, self.y + L], color=color)
         ax.plot([self.x - L, self.x + L], [self.y, self.y], color=color)
+
+
+def load_grid_data(db_connection):
+    with db_connection:
+        cur = db_connection.cursor()
+        cur.execute("SELECT \
+            Xmin,\
+            Xmax,\
+            Xstep,\
+            Ymin,\
+            Ymax,\
+            Ystep\
+            FROM Grids \
+            WHERE Id = 1"\
+        )
+        result = cur.fetchall()[0]
+
+    x_min = result[0]
+    x_max = result[1]
+    x_step = result[2]
+    y_min = result[3]
+    y_max = result[4]
+    y_step = result[5]
+
+    x_grid = np.arange(x_min, x_max, x_step)
+    y_grid = np.arange(y_min, y_max, y_step)
+
+    return (x_grid, y_grid)
