@@ -36,49 +36,85 @@ class Silhouette:
         self.cliffs.append(Cliff(-np.pi -1, 0,0))
         self.cliffs.append(Cliff(np.pi + 1, 0,0))
     
-    def draw(self, ax, color='k', deg=True, marker="None", fill=True):
-        # set angle unit
-        if deg:
-            conversion_ratio = 180 / np.pi
-            unit = 180
+    def draw(self, ax, theta_offset, phi_offset, color='k', marker="None", fill=True, polar=False):
+        gray_color = '#909090'
+            
+        if polar:
+            phi_conversion_ratio = -1
+            theta_conversion_ratio = 1
+
         else:
-            conversion_ratio = 1
-            unit = np.pi
+            phi_conversion_ratio = 180 / np.pi
+            theta_conversion_ratio = 180 / np.pi
+            theta_offset = 0
+            phi_offset = 0   
         
-        # generate (phi, theta) points from cliffs (phi, theta_R, theta_L)
         phi_list = []
         theta_list = []
-        
-        # phi_list.append(-unit)
-        # theta_list.append(self.cliffs[0].theta_L * conversion_ratio)
-        
         for cliff in self.cliffs:
-            phi_list.append(cliff.phi * conversion_ratio)
-            theta_list.append(cliff.theta_L * conversion_ratio)
-            phi_list.append(cliff.phi * conversion_ratio)
-            theta_list.append(cliff.theta_R * conversion_ratio)
-        
-        # phi_list.append(unit)
-        # theta_list.append(self.cliffs[-1].theta_R * conversion_ratio)
-        
-        if fill:
-            ax.fill_between(phi_list, 0, theta_list, color=color, facecolor=color)
+            phi_list.append(cliff.phi * phi_conversion_ratio + phi_offset)
+            theta_list.append(cliff.theta_L * theta_conversion_ratio + theta_offset)
+            phi_list.append(cliff.phi * phi_conversion_ratio + phi_offset)
+            theta_list.append(cliff.theta_R * theta_conversion_ratio + theta_offset)
+         
+        if polar:
+            phi_list.pop(0)
+            phi_list.pop(-1)
+            phi_list.pop(0)
+            phi_list.pop(-1)
+            theta_list.pop(0)
+            theta_list.pop(-1)
+            theta_list.pop(0)
+            theta_list.pop(-1)
+
+            # coordinates = []
+            # for i in range(0, len(phi_list)):
+            #     coordinates.append( (phi_list[i], theta_list[i] ) )
+            # coordinates.sort(key=lambda x: x[0])
+            # phi_list = []
+            # theta_list = []
+            # for i in range(0, len(coordinates)):
+            #     phi_list.append(coordinates[i][0])
+            #     theta_list.append(coordinates[i][1])
+
+            horizon_phi = np.array(phi_list)
+            horizon_theta = horizon_phi*0 + theta_offset
+            
+            c1 = plt.polar(phi_list, theta_list, color=color)[0]
+            c2 = plt.polar(horizon_phi, horizon_theta, color=color)[0]
+            
+            if fill:
+                x1 = c1.get_xdata()
+                y1 = c1.get_ydata()
+                x2 = c2.get_xdata()
+                y2 = c2.get_ydata()
+                plt.fill_between(x1, y1, y2, color=color)
+            
+            dense_phi = np.arange(0, 2*np.pi, 0.01)
+            horizon = dense_phi*0 + theta_offset
+            c3 = plt.polar(horizon, color=gray_color)[0]
+            x3 = c3.get_xdata()
+            y3 = c3.get_ydata()
+            plt.fill_between(dense_phi, 0, horizon, color=gray_color)
+                
+
         else:
-            ax.plot(phi_list, theta_list, color=color, marker=marker)
+            if fill:
+                ax.fill_between(phi_list, 0, theta_list, color=color, facecolor=color)
+            else:
+                ax.plot(phi_list, theta_list, color=color, marker=marker)
 
-        # plot East, South and West markers as vertical lines
-        gray_color = '#909090'
-        ax.plot([-90, -90], [0, 90], color=gray_color)
-        ax.plot([0, 0], [0, 90], color=gray_color)
-        ax.plot([90, 90], [0, 90], color=gray_color)
+            # plot East, South and West markers as vertical lines
+            ax.plot([-90, -90], [0, 90], color=gray_color)
+            ax.plot([0, 0], [0, 90], color=gray_color)
+            ax.plot([90, 90], [0, 90], color=gray_color)
 
-        plt.text(-179, 1, 'N', color=gray_color)
-        plt.text(-89, 1, 'E', color=gray_color)
-        plt.text(1, 1, 'S', color=gray_color)
-        plt.text(91, 1, 'W', color=gray_color)
-        plt.text(175, 1, 'N', color=gray_color)
-    
-
+            plt.text(-179, 1, 'N', color=gray_color)
+            plt.text(-89, 1, 'E', color=gray_color)
+            plt.text(1, 1, 'S', color=gray_color)
+            plt.text(91, 1, 'W', color=gray_color)
+            plt.text(175, 1, 'N', color=gray_color)
+            
     def add_roof(self, roof):
         # find the cliffs that are between the roof's phi1 and phi2
         cliffs_inside = []

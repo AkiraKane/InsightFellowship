@@ -3,6 +3,7 @@
 import numpy as np
 import datetime as dt
 from dateutil.parser import parse
+import matplotlib.pyplot as plt
 
 class SunPath:
     
@@ -126,4 +127,15 @@ class SunPath:
             ax.plot(phis, thetas, color=color)
         else:
             ax.plot(self.phi_list, self.theta_list, color=color)
+
+
+    def draw_polar(self, ax, theta_offset, phi_offset, color='r'):
+        
+        phis = []
+        thetas = []
+        for p in self.positions:
+            phis.append(-p[0] + phi_offset)
+            thetas.append(p[1]  + theta_offset)
+        plt.polar(phis, thetas, color=color)
+
       
