@@ -1055,7 +1055,7 @@ To do list for today:
 	5. implement address -> goecoordinates function with google's API
 	--OK-- 6. create polar plot
 	--OK-- 7. display sunny/total minutes as text
-	8. display winter/summer solstice and sprin/fall equinox sunny minutes values
+	8. display winter/summer solstice and spring/fall equinox sunny minutes values
 
 Further work:
 	- add capability to investigate all blocks in the database using their coordinates and max height
@@ -1104,3 +1104,52 @@ I'll
 		convert_to_cartesian(lon, lat, mean_lon, mean_lat, Earth_radius)
 		find_my_block(x_my, y_my, x_grid, y_grid)
 		
+
+---------------
+Day 12 - Jul 20
+---------------
+
+To do list for today:
+--OK-- 1. Create _nice_ polar plot by hard coding it into a regular xy plot
+2. Calculate diffuse light
+3. Create sunPower(minutes, days) for a single location
+4. figure out google maps' API for getting geocoordinates
+
+
+The goal for Friday is to have a finished product: Something I'm comfortable with presenting it to the hiring companies.
+
+I want my app to do the following:
+	Input page:
+		- instructions on how to use it
+		- address
+		- "zoom to address" button
+	Select apartment page:
+		- embedded google map (centered on coordinates)
+		- clicking on map gets geocoordinates
+		- print coordinates, and put a pin in the map
+		- floor
+		- day of year
+		- "show sun" button
+	Output page:
+		- minutes of sun / total minutes of sun
+		- sky visibility
+		- summary: bar plot: sunny minutes + total minutes vs weeks
+		- block plot
+		- polar plot (maybe on the same plot)
+		- horizon
+		- "new search" button
+
+	I also want:
+		- to take all blocks into account in the algorithm
+		- put the buildings on the block plot only if they are on the shilhouette (or draw them with different color)
+
+Things to do to achive this
+	1. Figure out how google's address->geocoordinates API works
+	2. Figure out how to embed google map
+	3. Figure out how to get geocoordinates from a click on the embedded map
+
+
+I found a way to validate my prediction: Comparing the fisheye skylines with actual fisheye photos at the same location.
+So fat I've found two: Times square, Columbus circle
+
+Let's add the new plotting tools to the app.

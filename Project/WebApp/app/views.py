@@ -165,5 +165,24 @@ def draw_polar_plot():
     return response 
 
 
+@app.route('/inverted_polar_plot')
+def draw_inverted_polar_plot():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    sil.draw_inverted_polar(ax, color='k')
+    sun.draw_inverted_polar(ax, color='#ffa700', linewidth=3.0)
+
+    fig.set_size_inches(8, 8)
+
+
+    # post-process for html
+    canvas = FigureCanvas(fig)
+    png_output = StringIO.StringIO()
+    canvas.print_png(png_output)
+    response = make_response(png_output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+    return response 
+
 
 
