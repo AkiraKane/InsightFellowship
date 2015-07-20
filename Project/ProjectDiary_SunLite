@@ -1111,8 +1111,8 @@ Day 12 - Jul 20
 
 To do list for today:
 --OK-- 1. Create _nice_ polar plot by hard coding it into a regular xy plot
-2. Calculate diffuse light
-3. Create sunPower(minutes, days) for a single location
+2. Calculate diffuse light (or visible sky instead)
+!NO! 3. Create sunPower(minutes, days) for a single location
 4. figure out google maps' API for getting geocoordinates
 
 

@@ -128,33 +128,13 @@ def draw_silhouette():
     ax = fig.add_subplot(111)
 
     sun.draw(ax)       
-    sil.draw(ax, theta_offset=0, phi_offset=0)
+    sil.draw(ax)
 
     ax.set_ylim([0, 90])
     ax.set_xlim([-180, 180])
 
     ax.set_aspect('equal', adjustable='box')
     fig.set_size_inches(10, 2.5)
-
-    # post-process for html
-    canvas = FigureCanvas(fig)
-    png_output = StringIO.StringIO()
-    canvas.print_png(png_output)
-    response = make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-    return response 
-
-
-@app.route('/polar_plot')
-def draw_polar_plot():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    theta_offset = 1.5
-    phi_offset = -np.pi/2
-    sil.draw(ax, polar=True, fill=False, theta_offset=theta_offset, phi_offset=phi_offset)
-    sun.draw_polar(ax, theta_offset=theta_offset, phi_offset=phi_offset)
-    fig.set_size_inches(10, 10)
 
     # post-process for html
     canvas = FigureCanvas(fig)

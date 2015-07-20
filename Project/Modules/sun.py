@@ -117,31 +117,23 @@ class SunPath:
             self.visible.append( vis )
         return (sum(self.visible), len(self.positions))
         
-    def draw(self, ax, color='r', deg=True):
+    def draw(self, ax, color='#ffa700', deg=True, linewidth=3.0):
         if deg:
             phis = []
             thetas = []
             for p in self.positions:
                 phis.append(p[0] * 180/np.pi)
                 thetas.append(p[1] * 180/np.pi)
-            ax.plot(phis, thetas, color=color)
+            ax.plot(phis, thetas, color=color, linewidth=linewidth)
         else:
-            ax.plot(self.phi_list, self.theta_list, color=color)
+            ax.plot(self.phi_list, self.theta_list, color=color, linewidth=linewidth)
 
-
-    def draw_polar(self, ax, theta_offset, phi_offset, color='r'):
-        phis = []
-        thetas = []
-        for p in self.positions:
-            phis.append(-p[0] + phi_offset)
-            thetas.append(p[1]  + theta_offset)
-        plt.polar(phis, thetas, color=color)
 
     def draw_inverted_polar(self, ax, color='#ffa700', linewidth=3.0):
         x_list = []
         y_list = []
         for p in self.positions:
             r = np.pi/2 - p[1]
-            x_list.append(r * np.sin(p[0]))
+            x_list.append(-r * np.sin(p[0]))
             y_list.append(r * np.cos(p[0]))
         ax.plot(x_list, y_list, color=color, linewidth=linewidth)
