@@ -136,8 +136,10 @@ class Silhouette:
 
 
     def draw_inverted_polar(self, ax, color='k', plot_size=2):
+        gray_color = '#909090'
+
         # plot horizon
-        p = PatchCollection([Circle((0,0), np.pi/2)], color=color)
+        p = PatchCollection([Circle((0,0), np.pi/2+0.02)], color=gray_color)
         ax.add_collection(p)
 
         # get (phi, theta) coordinates from cliffs
@@ -159,6 +161,20 @@ class Silhouette:
             if phi_deg[i] > 180:
                 phi_deg[i] = 180
 
+        # declare wedges, corresponding to the buildings
+        wedge_list = []
+        for i in range(0, len(phi_deg)-1):
+            wedge_list.append(
+                Wedge(\
+                    (0,0), \
+                    np.pi/2, \
+                    90+phi_deg[i], \
+                    90+phi_deg[i+1]
+                ) \
+            )
+        p = PatchCollection(wedge_list, facecolor='k', edgecolor=gray_color)
+        ax.add_collection(p)
+
         # declare wedges, corresponding to the sky above each roof
         wedge_list = []
         for i in range(0, len(phi_deg)-1):
@@ -170,10 +186,12 @@ class Silhouette:
                     90+phi_deg[i+1]
                 ) \
             )
-        
         p = PatchCollection(wedge_list, color='w')
         ax.add_collection(p)
 
+
+        
+        
         # geographic directions and their names
         L = plot_size
         gray_color = '#909090'

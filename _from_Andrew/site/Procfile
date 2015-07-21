@@ -1,0 +1,1 @@
+web: gunicorn d4:app --log-file=-

@@ -54,40 +54,61 @@
 <br><br><br><br>
 
 
-      <table style="width:100%",   cellspacing=50>
-        <tr>
+      
           <table style="width:100%"   cellspacing=50>
             <tr>
               <td>
                 <font color="white">placeholder text </font>
               </td>
               <td>
-                <h2>Enter location and day</h2>
-                <p>Examples:</p>
-                <p>40.767946, -73.981831</p>
-                <p>40.756636, -73.986362</p>
-                <p>40.711604, -74.013638</p>
-                <p>40.703614, -74.016030</p>
                   <form  action="/input" method="GET">
                     <div class="form-group">
+
+                    <h2>Location</h2>
+
                       <label for="Address">Address:</label>
-                      <input type="text" id="Address" name='Address' placeholder="{{address_placeholder}}">
+                      <input type="text" id="Address" name='Address' placeholder="e.g. Times Square, New York">
                       <br>
-                      <label for="Floor">Floor:</label>
-                      <input type="text" id="Floor" name='Floor' placeholder="{{floor_placeholder}}">
+
+                      <label for="Floor">Floor number:</label>
+                      <input type="text" id="Floor" name='Floor' placeholder="17">
                       <br>
+
+                    <h2>Direction</h2>
+
+                      <div class="btn-group" data-toggle="buttons">
+                          <label for="year" class="control-label input-group">Window facing:</label>
+                          <label class="btn btn-default active">
+                              <input type="radio" name="facade" value="South" checked="">South
+                          </label>
+                          <label class="btn btn-default">
+                              <input type="radio" name="facade" value="South">East
+                          </label>
+                          <label class="btn btn-default">
+                              <input type="radio" name="facade" value="South">West
+                          </label>
+                          <label class="btn btn-default">
+                              <input type="radio" name="facade" value="South">North
+                          </label>
+                      </div>
+
+                    <h2>Time</h2>
+
                       <label for="Day">Day of year:</label>
-                      <input type="text" id="Day" name='Day' placeholder="{{day_placeholder}}">
+                      <input type="text" id="Day" name='Day' placeholder="7/31">
+                      <br>
+
                     </div>
                     <div>
                       <button type="submit" class="btn btn-default btn-lg">Show!</button>
                     </div>
-                    <h3> {{message}} </h3>
                   </form>
+
                 </div>
               </td>  
               <td>
-                <img src="./block_map" width="450" height="450">
+                <!-- <img src="./building_zoom" width="450" height="450"> -->
+                <img src="./block_map" height="450">
                 <img src="./inverted_polar_plot" height="450">
               </td>
           </tr>
@@ -100,18 +121,10 @@
             </td>
             <td>
               <br>
-              <img src="./silhouette" height="200">
+              <!-- <img src="./silhouette" height="200"> -->
             </td>
           </tr>
         </table> 
-        </tr>
-
-        <tr>
-          <td>
-            <font color="white">placeholder text </font>
-          </td>
-        </tr>
-    </table>
 
     <br>
     <br>

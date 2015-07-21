@@ -4,9 +4,10 @@ import re
 import numpy as np
 import datetime as dt
 from dateutil.parser import parse
+import geocoder
 
-LATITUTE_DEFAULT = 40.767946 
-LONGITUDE_DEFAULT = -73.981831
+LATITUTE_DEFAULT = 40.7049687
+LONGITUDE_DEFAULT = -74.0145948
 ALTITUDE_DEFAULT = 0
     
 
@@ -47,11 +48,15 @@ class Observer:
         self.city_lat = result[2]
 
     def get_geocoordinates(self, address, floor):
-        if address:
-            match = re.search(r'(-?\d+\.?\d*)\s*,?\s*(-?\d+\.?\d*)', address)
-            if match:
-                self.lat = float(match.group(1))
-                self.lon = float(match.group(2))
+        # if address:
+        #     match = re.search(r'(-?\d+\.?\d*)\s*,?\s*(-?\d+\.?\d*)', address)
+        #     if match:
+        #         self.lat = float(match.group(1))
+        #         self.lon = float(match.group(2))
+        geocoordinates_from_address = geocoder.google(address).latlng
+        if geocoordinates_from_address:
+            self.lat = geocoordinates_from_address[0]
+            self.lon = geocoordinates_from_address[1]
 
         if floor:
             match = re.search(r'(\d+)', floor)
@@ -89,7 +94,48 @@ class Observer:
         self.block_xid = x_index
         self.block_yid = y_index
 
+    def get_my_building(self, buildings):
+        my_building_keys = []
+        for key in buildings:
+            poly = []
+            for  node in buildings[key].nodes:
+                poly.append((node.x, node.y))
+            if self.is_inside(poly):
+                my_building_keys.append(key)
 
+        z = 1e6
+        current_key = None
+        for key in my_building_keys:
+            if buildings[key].z < z:
+                z = buildings[key].z
+                current_key = key
+
+        if current_key:
+            return buildings[current_key]
+        else:
+            return None
+
+
+
+    def is_inside(self, poly):
+        x = self.x
+        y = self.y
+        n = len(poly)
+
+        inside = False
+        p1x,p1y = poly[0]
+        for i in range(n+1):
+            p2x,p2y = poly[i % n]
+            if y > min(p1y,p2y):
+                if y <= max(p1y,p2y):
+                    if x <= max(p1x,p2x):
+                        if p1y != p2y:
+                            xints = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x
+                        if p1x == p2x or x <= xints:
+                            inside = not inside
+            p1x,p1y = p2x,p2y
+
+        return inside
 
     def get_neighboring_block_ids(self):
         
@@ -108,10 +154,10 @@ class Observer:
 
     def plot_observers_location(self, ax, color='k'):
         # center dot
-        ax.plot([self.x], [self.y], color=color, marker='o', markersize=10)
+        ax.plot([self.x], [self.y], color=color, marker='o', markersize=5)
 
-        # corss
-        L = 300
+        # cross
+        L = 50
         ax.plot([self.x, self.x], [self.y - L, self.y + L], color=color)
         ax.plot([self.x - L, self.x + L], [self.y, self.y], color=color)
 

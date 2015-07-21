@@ -27,9 +27,9 @@ obs = Observer()
 sil = Silhouette()
 sun = SunPath()
 buildings = {}
+building_at_address = Building()
 x_grid = None
 y_grid = None
-
 
 con = mdb.connect('localhost', 'root', '123', 'Manhattan_buildings')
 
@@ -51,10 +51,18 @@ def input():
     sun.lat = obs.lat
     sun.lon = obs.lon
 
-    # get all buildings in the proposed list of blocks
+    # get all buildings within the 9 blocks around the observer
     buildings.clear()
     (x_id_list, y_id_list) = obs.get_neighboring_block_ids()
-    for i in range(0, len(x_id_list)):
+    
+    # add buildings on the block
+    buildings.update(append_buildings_in_block(con, x_id_list[0], y_id_list[0]))
+
+    # select the building the observer is sitting in
+    building_at_address = obs.get_my_building(buildings)
+
+    # add buildings in neighboring blocks
+    for i in range(1, len(x_id_list)):
         buildings.update(\
             append_buildings_in_block(con, x_id_list[i], y_id_list[i])\
         )
@@ -77,20 +85,40 @@ def input():
     address_placeholder = str(obs.lat) + ', ' + str(obs.lon)
     floor_placeholder = str(int(round(obs.z / 3.0)))
     day_placeholder = str(sun.date.month) + '/' + str(sun.date.day)
-    return render_template(\
-        "input.html", \
-        message=message, \
-        address_placeholder=address_placeholder, \
-        floor_placeholder=floor_placeholder, \
-        day_placeholder=day_placeholder \
-    )
+    return render_template("input.html")
     
+
+@app.route('/building_zoom')
+def draw_building_zoom():
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+
+    building_at_address.plot_footprint(ax, color='r')
+    obs.plot_observers_location(ax)
+
+    L = 100     # half size of the plotted area in meters
+    ax.set_xlim([obs.x-L, obs.x+L])
+    ax.set_ylim([obs.y-L, obs.y+L])    
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)    
+
+    ax.set_aspect('equal')
+    fig.set_size_inches(5, 5)
+
+    # post-process for html
+    canvas = FigureCanvas(fig)
+    png_output = StringIO.StringIO()
+    canvas.print_png(png_output)
+    response = make_response(png_output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+    return response 
 
 
 @app.route('/block_map')
 def draw_block():
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    # ax = fig.add_subplot(111)
+    ax = fig.add_axes([0,0,1,1])
     for key in buildings:
         if buildings[key].z > obs.z:    # plot only if building is taller than observer
             if buildings[key].z < 20:
@@ -104,9 +132,15 @@ def draw_block():
             else:
                 color = 'y'
             
-            buildings[key].plot_footprint(ax, color) 
+            buildings[key].plot_footprint(ax, color='k') 
 
     obs.plot_observers_location(ax, color='k')
+    
+    L = 500
+    ax.set_xlim([obs.x-L, obs.x+L])
+    ax.set_ylim([obs.y-L, obs.y+L])    
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)    
     
     ax.set_aspect('equal')
     fig.set_size_inches(8, 8)
@@ -148,7 +182,8 @@ def draw_silhouette():
 @app.route('/inverted_polar_plot')
 def draw_inverted_polar_plot():
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    #ax = fig.add_subplot(111)
+    ax = fig.add_axes([0,0,1,1])
 
     sil.draw_inverted_polar(ax, color='k')
     sun.draw_inverted_polar(ax, color='#ffa700', linewidth=3.0)

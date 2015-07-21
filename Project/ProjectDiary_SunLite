@@ -1181,8 +1181,60 @@ I need to
 	- change DOM depending on the clicking
 	- pass the clicking information to python
 
+Great tutorial:
+	http://website.education.wisc.edu/~swu28/d3t/concept.html
 
 
 
+---------------
+Day 13 - Jul 21
+---------------
 
+To do list for today:
+	1. Draw svg with d3 using coordinates from python code
+	2. Record a click with d3 on an svg object and feed it into python
+	3. Write algorithm that selects the building(s) at the address' geocoordinates
+	4. Design web app's pages
+	5. Implement address -> geocoordinates function
+	6. Implement embedded google map with proper zoom
+	7. Implement svg drawing and gathering data
 
+jQuery tutorial:
+	http://flask.pocoo.org/docs/0.10/patterns/jquery/
+Bootstrap:
+	http://getbootstrap.com/javascript
+	http://www.bootply.com/
+
+I need to get some basic understanding of javascript to effectively use Bootstrap.
+Let's try to do an ugly but working version of my app with javascript, d3, jquery and svg drawing first.
+
+Let's play with d3 and svg drawing in /InsightDataFellowship/js_play/
+
+On second thought, it may be better to just use Andrew's solution for getting click coordinates.
+
+Let's see how he did that.
+There is indeed a simple input field with an image.
+I need to:
+	- make it work with a dynamically created image
+	- convert (click_x, click_y) to real (x,y)
+	- pass it to python
+
+To do list:
+	1. Implement algorithm that finds the buildings the observer is sitting in
+	2. Plot the selected buildings with red, and the rest of the buildings in the block with black
+	3. Select the shortest of the red buildings
+	4. Register user's click on the drawing
+	5. If the click is inside the building, project it just outside the nearest wall
+	6. use these projected coordinates as the input for the search
+
+Let's do minimal changes:
+	--OK-- 0. Delete silhouette
+	--OK-- 0a. Get geocoding work
+	--OK-- 1. Add dropdown menu for facade (N,S,W,E)
+	2. Select the shortest building at the address
+	3. Select the X-most node (X=N,S,W,E) of the building 
+	4. Calculate yearly analysis
+	5. Add Bootstrap tabs: Location overview, Fisheye view, Year-around Summary
+	6. Add contact info + misc
+	7. Finalize design
+	8. Upload to AWS, and make it persistent

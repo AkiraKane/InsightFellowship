@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <script type="text/javascript" src="http://mbostock.github.com/d3/d3.js"></script>
+      <style = type='text/css'>
+        .buttonex button {
+          left: 10px;
+          position: absolute;
+          top: 320px;
+          width: 100px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class = "buttonex" id="example99">
+        <button>Randomize</button>
+      </div>
+      
+      <script type="text/javascript"> 
+      //data = [[radius, cx, cy, color]]
+        data = [[10, 20, 20, "rgb(224, 236, 244)"], 
+      [30, 50, 50, "rgb(136, 86, 167)"]]
+    
+        var w = 300, h = 300;
+        var myExample = d3.select("#example99")
+          .append("svg:svg")
+          .attr("width", w)
+          .attr("height", h)
+    
+        myExample.selectAll("circle")
+          .data(data)
+          .enter()
+          .append("circle")
+          .attr("r", function(d){return d[0]})
+          .attr("cx", function(d){return d[1]})
+          .attr("cy", function(d){return d[2]})
+          .style("stroke", "black")
+          .style("fill", function(d){return d[3]})
+          .on("click", function() {myExample.selectAll("circle")
+            .attr("cx", function(){return Math.random() * w})
+            .attr("cy", function(){return Math.random() * h});
+          });
+    
+        d3.select("#example99 button").on("click", function() {
+          myExample.selectAll("circle")
+            .attr("cx", function(){return Math.random() * w})
+            .attr("cy", function(){return Math.random() * h});
+          });
+
+      </script>
+    </body>
+  </html>

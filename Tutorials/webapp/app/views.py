@@ -5,13 +5,21 @@ from a_Model import ModelIt
 
 db= mdb.connect(user="root", host="localhost", passwd="123", db="world_innodb", charset='utf8')
 
+@app.route('/_add_numbers')
+def add_numbers():
+    """Add two numbers server side, ridiculous but well..."""
+    a = request.args.get('a', 0, type=int)
+    b = request.args.get('b', 0, type=int)
+    return jsonify(result=a + b)
+
+
 @app.route('/')
-@app.route('/index')
 def index():
-    return render_template("index.html",
-        title = 'Home',
-        user = 'Peter'
-        )
+    return render_template('myindex.html')
+
+if __name__ == '__main__':
+    app.run()
+
 
 @app.route('/db')
 def cities_page():

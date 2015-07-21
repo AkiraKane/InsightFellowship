@@ -1,0 +1,185 @@
+
+from flask import Flask, render_template, request, url_for, send_file
+import numpy as np
+import pandas as pd
+import pickle
+import pymysql as mdb
+import json
+from sklearn.externals import joblib
+
+app = Flask(__name__)
+
+def get_targets():
+    targets = []
+    filename = 'static/data/curated_generic_names.csv'
+    file = open(filename, 'r')
+    for row in file:
+        genericname = row.replace('\n','')
+        targets.append(genericname)
+    return targets
+
+
+def get_substitutions(name):
+    '''
+    Given a string of a generic drug name,
+    return a list of strings of drug names
+    that are reasonable substitutions.
+    '''
+    namedict = pickle.load(open("static/data/namedict.p","rb"))
+    classdict = pickle.load(open("static/data/classdict.p","rb"))
+
+    classes = namedict[name]
+    subs = []
+    for classname in classes:
+        subs = subs + classdict[classname]
+    subs = list(set(subs)) # duplicates can appear because they have more than one class
+    subs.pop(subs.index(name)) # input drug is not a substitute for itself
+    return subs
+
+
+def get_X(names):
+    '''
+    Given a list of strings of generic drug names,
+    return a feature vector X.
+    '''
+    targets = get_targets()
+    drugindxs = []
+    for drug in names:
+        drugindxs.append(targets.index(drug))
+    X_input = np.zeros(len(targets), dtype=int)
+    X_input[drugindxs] = 1
+    return X_input
+
+def get_N_substitutions(search_input, N):
+    ''' 
+    Given some drug regimen, as a string, return
+    a DataFrame of the N best substitutions (if the input is in that list),
+    or if not, the N-1 best substitutions plus the input.
+    '''
+    
+    clf = joblib.load('static/classifier/logistic-3class.pkl')
+    names = search_input.strip().split('-')
+    X_input = get_X(names)
+    proba = clf.predict_proba(X_input)[0]
+    predi = clf.predict(X_input)[0]
+    input_severe = 1-proba[0]
+    input_fatal = proba[2]
+
+    subdf = pd.DataFrame(columns = ['drugA', 'drugB', 'severe', 'fatal'])
+    subdf.loc[0] = [names[0], names[1], input_severe, input_fatal]
+    for indx,name in enumerate(names):
+        remaining_names = names[:indx] + names[indx+1:]
+        subs = get_substitutions(name)
+        for sub in subs:
+            newcombo = remaining_names + [sub]
+            X_input = get_X(newcombo)
+            proba = clf.predict_proba(X_input)[0]
+            predi = clf.predict(X_input)[0]
+            severe = 1-proba[0]
+            fatal = proba[2]
+            subdf.loc[len(subdf)] = [newcombo[0], newcombo[1], severe, fatal]
+            #print 'sub: ', sub, 'in place of', name, '...', newcombo, 'severe,fatal=', (severe,fatal)
+
+    # Sorted DataFrame of substitutions
+    # (index=0 is the input)
+    ssubdf = subdf.sort(columns='severe')
+    topN = list(ssubdf.iloc[:N].index)
+    print
+    if 0 in topN: # if the input is already in the top N, do nothing
+        subtopN = ssubdf.loc[topN]
+    else: # otherwise, add it to the end for display purposes
+        topNplus0 = topN[:N-1] + [0]
+        subtopN = ssubdf.loc[topNplus0]
+    return subtopN
+
+
+@app.route("/data")
+@app.route("/data/<search_input>")
+def data(search_input='amphetamine-aspirin'):
+
+    #http://nvd3.org/examples/multiBarHorizontal.html
+    test1 =   {
+        "key": "Probability that event is serious",
+        "color": "#d62728",
+        "values": []
+        }
+    test2 =   {
+        "key": "Probability that event is fatal",
+        "color": "#4f99b4",
+        "values": []
+        }
+    df = get_N_substitutions(search_input, 5)
+    for i in range(5):
+        tmp1 = {}
+        tmp1['label'] = df.iloc[i].drugA + ',' + df.iloc[i].drugB
+        tmp1['value'] = df.iloc[i].severe
+        test1['values'].append(tmp1)
+        tmp2 = {}
+        tmp2['label'] = df.iloc[i].drugA + ',' + df.iloc[i].drugB
+        tmp2['value'] = df.iloc[i].fatal
+        test2['values'].append(tmp2)
+
+    print json.dumps([test1,test2])
+    return json.dumps([test1,test2])
+
+
+@app.route("/")
+def d7():
+    return render_template('index.html', start=True, found=True)
+
+@app.route("/", methods=['POST'])
+def d7_post():
+    
+    if 'search' in request.form:
+        search_input = request.form['search'].lower()
+
+    if search_input == '':
+        search_input = 'amphetamine-aspirin'.lower()
+
+    # convert input to feature vector
+    targets = get_targets()
+    drugindxs = []
+    drugnames = []
+    found = False
+    for drug in search_input.split('-'):
+        drug = drug.strip()
+        drugnames.append(drug)
+        drugindxs.append(targets.index(drug))
+        found = True
+    print drugindxs
+    X_input = np.zeros(len(targets), dtype=int)
+    X_input[drugindxs] = 1
+    print X_input
+
+    # unpickle classifier
+    clf = joblib.load('static/classifier/logistic-3class.pkl')
+    proba = clf.predict_proba(X_input)[0]
+    predi = clf.predict(X_input)[0]
+    p_severe = (1-proba[0]) * 100
+    p_fatal = (proba[2]) * 100
+    print 'If this patient has an AE, probability of it being severe = ', p_severe
+    print 'If this patient has an AE, probability of it being fatal = ', p_fatal
+
+    subs = get_N_substitutions(search_input, 5)
+    alternative = subs.iloc[0]['drugA'] + ',' + subs.iloc[0]['drugB']
+
+    names = search_input.strip().split('-')
+    namedict = pickle.load(open("static/data/namedict.p","rb"))
+    input_classes = []
+    for name in names:
+        input_classes.append(namedict[name])
+    
+    
+    if found == False:
+        return render_template('index.html',start=False,found=False)
+    else:
+        return render_template('index.html',start=False,found=True,
+                               search_input=search_input,
+                               input_classes=input_classes,
+                               alternative=alternative,
+                               p_severe=p_severe, p_fatal=p_fatal,
+                               subs=subs,
+                               htmlsubs=subs.to_html())
+
+if __name__ == '__main__':
+    app.run(debug=True)
