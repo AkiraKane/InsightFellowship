@@ -1153,3 +1153,36 @@ I found a way to validate my prediction: Comparing the fisheye skylines with act
 So fat I've found two: Times square, Columbus circle
 
 Let's add the new plotting tools to the app.
+Done.
+
+
+Now, let's understand Google's API.
+I've found geocoder python package, which can be run with two lines of code.
+
+The goecoordinates returnted by google point in the middle of the buildings.
+I need the coordinates point to a window, facade or corner of the building.
+I'm going to do this by:
+	1. Converting the address to geocoordinates from google
+	2. Converting the geocoordinates to (x,y) cartesian coordinates
+	3. Find buildings containing the coordinate
+	(if empty: be happy, continue the algorithm)
+	4. Find the shortest bulding among them
+	5. Use interactive javascript to plot an outline of the building with 
+		corners,
+		regular points on the facades
+	6. allow user to select one of the points
+	7. set the coordinates of those, and continue the algorithm
+
+
+I know how to get goecoordinates from the address. The missing piece is the creation and manipulation of the javascript object.
+
+I need to 
+	- dynamically create svg objects, and make them clickable.
+	- change DOM depending on the clicking
+	- pass the clicking information to python
+
+
+
+
+
+
