@@ -1234,7 +1234,30 @@ Let's do minimal changes:
 	2. Select the shortest building at the address
 	3. Select the X-most node (X=N,S,W,E) of the building 
 	4. Calculate yearly analysis
-	5. Add Bootstrap tabs: Location overview, Fisheye view, Year-around Summary
+	--OK-- 5. Add Bootstrap tabs: Location overview, Fisheye view, Year-around Summary
 	6. Add contact info + misc
 	7. Finalize design
 	8. Upload to AWS, and make it persistent
+
+
+---------------
+Day 14 - Jul 22
+---------------
+
+To do list for today:
+	1. Omit the observer's building from the silhouette
+	1a. Get default if Address is outside Manhattan
+	2. Add a filter to the silhouette, depending on the orinetaion
+	3. Exchange the matplotlib plot with small google map
+	4. Calculate year around summary
+	5. Add year around summary
+	6. Add diffuse light
+	7. Add contact + misc
+
+Further work:
+	- Finalize design
+	- Upload to AWS
+	- Implement algorithm to take all blocks into account
+
+
+

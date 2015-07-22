@@ -94,7 +94,12 @@ class Observer:
         self.block_xid = x_index
         self.block_yid = y_index
 
-    def get_my_building(self, buildings):
+    def distance_from_building(self, building):
+        dx = self.x - building.center.x
+        dy = self.y - building.center.y
+        return np.sqrt(dx**2 + dy**2)
+
+    def get_my_buildings(self, buildings):
         my_building_keys = []
         for key in buildings:
             poly = []
@@ -103,17 +108,14 @@ class Observer:
             if self.is_inside(poly):
                 my_building_keys.append(key)
 
-        z = 1e6
-        current_key = None
-        for key in my_building_keys:
-            if buildings[key].z < z:
-                z = buildings[key].z
-                current_key = key
+        # z = 1e6
+        # current_key = None
+        # for key in my_building_keys:
+        #     if buildings[key].z < z:
+        #         z = buildings[key].z
+        #         current_key = key
 
-        if current_key:
-            return buildings[current_key]
-        else:
-            return None
+        return my_building_keys
 
 
 

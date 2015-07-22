@@ -106,35 +106,21 @@
       <input type="text" id="Address" name='Address' placeholder="e.g. Times Square">
       (in Manhattan)
       <br>
+      <label for="Floor">Floor number:</label>
+      <input type="text" id="Floor" name='Floor' placeholder="e.g. 17">
+      <br>
       <button type="submit" class="btn btn-default btn-sm">Show</button>
     </div> 
-    
   </form>
 
 
-  <form  action="." method="POST" id="mainform">
+  <form  action="/zoom_adjust" method="GET">
     <div class="form-group">
-      <label for="Zoom">Click at exact location on the map below</label>
-      <input type="image" name="Zoom" src="/building_zoom" alt="Submit" />
+      <label for="zoom">Click at exact location on the map below</label>
+      <input type="image" name="zoom" src="/building_zoom" alt="Submit" height= 400 />
       <br>
     </div>
   </form>
-  
-
-  <form  action="/input" method="GET">
-    <div class="form-group">
-      <label for="Floor">Floor number:</label>
-      <input type="text" id="Floor" name='Floor' placeholder="17">
-      <br>
-      <h2>Time</h2>
-      <label for="Day">Day of year:</label>
-      <input type="text" id="Day" name='Day' placeholder="e.g. 7/31">
-      <br>
-      <br>
-      <button type="submit" class="btn btn-default btn-lg">Calculate</button>
-    </div>
-  </form>
-
 
 
 
