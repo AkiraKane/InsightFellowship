@@ -184,8 +184,8 @@ def draw_building_zoom():
 @app.route('/light_plot')
 def draw_light_plot():
     fig = plt.figure()
-    #ax = fig.add_subplot(111)
-    ax = fig.add_axes([0,0,1,1])
+    ax = fig.add_subplot(111)
+    #ax = fig.add_axes([0,0,1,1])
 
     summary.plot_light(ax)
 
