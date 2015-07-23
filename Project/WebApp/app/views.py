@@ -23,8 +23,10 @@ from observer import *
 
 DEFAULT_DAY = '7/31'
 DEFAULT_ADDRESS = 'Columbus Circle'
+DEFAULT_FLOOR = '0'
 ZOOM_SIZE = 200
 ZOOM_SIZE_PX = 350
+SUN_STEPSIZE = 5
 
 #  declare global instances
 obs = Observer()
@@ -34,7 +36,7 @@ buildings = {}
 x_grid = None
 y_grid = None
 address_placeholder = 'e.g. One Times Square'
-floor_placeholder = 'e.g. 19'
+floor_placeholder = DEFAULT_FLOOR
 
 con = mdb.connect('localhost', 'root', '123', 'Manhattan_buildings')
 
@@ -60,7 +62,7 @@ def zoom():
 
     exec 'address_placeholder = "' + address + '"' in globals()
 
-    obs.get_geocoordinates(address, floor='0')
+    obs.get_geocoordinates(address, floor=DEFAULT_FLOOR)
     obs.convert_to_cartesian()
     obs.find_my_block(x_grid, y_grid)
 
@@ -74,7 +76,7 @@ def zoom():
         buildings.update(buildings_in_observers_block)
     # block is empty, fall back to default address
     else:
-        obs.get_geocoordinates(DEFAULT_ADDRESS, floor='0')
+        obs.get_geocoordinates(DEFAULT_ADDRESS, floor=DEFAULT_FLOOR)
         obs.convert_to_cartesian()
         obs.find_my_block(x_grid, y_grid)
         buildings.clear()
@@ -100,7 +102,7 @@ def zoom_after_click():
     obs.y = obs.y + dy
     obs.convert_to_geographical()
 
-    exec 'floor_placeholder = "e.g. 19"' in globals()
+    exec 'floor_placeholder = "'+ DEFAULT_FLOOR + '"' in globals()
     return render_template('show_calculate_button.html', 
         address_placeholder=address_placeholder, 
         floor_placeholder=floor_placeholder)
@@ -109,8 +111,9 @@ def zoom_after_click():
 def show_results():
     floor = request.args.get('Floor')
 
-    if obs.get_altitude(floor):
-        exec 'floor_placeholder = "' + str(int(floor)) + '"' in globals()
+    if not obs.get_altitude(floor):
+        floor = DEFAULT_FLOOR
+    exec 'floor_placeholder = "' + str(int(floor)) + '"' in globals()
 
 
     # add roofs of the buildigns to sil
@@ -122,7 +125,7 @@ def show_results():
                 sil.add_roof( Roof(tup) )
     
     summary.clear()
-    summary.collect_summary(sil, obs)
+    summary.collect_summary(sil, obs, SUN_STEPSIZE)
 
     # sun.get_date(DEFAULT_DAY)
     # sun.lat = obs.lat
@@ -138,25 +141,6 @@ def show_results():
     return render_template("results.html", lat=obs.lat, lon=obs.lon, 
         address_placeholder=address_placeholder, 
         floor_placeholder=floor_placeholder)
-    
-
-@app.route('/light_plot')
-def draw_light_plot():
-    fig = plt.figure()
-    ax = fig.add_axes([0,0,1,1])
-
-    summary.plot_light(ax)
-
-    fig.set_size_inches(5, 3)
-
-
-    # post-process for html
-    canvas = FigureCanvas(fig)
-    png_output = StringIO.StringIO()
-    canvas.print_png(png_output)
-    response = make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-    return response 
 
 @app.route('/building_zoom')
 def draw_building_zoom():
@@ -187,59 +171,17 @@ def draw_building_zoom():
     return response 
 
 
-@app.route('/block_map')
-def draw_block():
-    fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    ax = fig.add_axes([0,0,1,1])
-    for key in buildings:
-        if buildings[key].z > obs.z:    # plot only if building is taller than observer
-            if buildings[key].z < 20:
-                color = 'k'
-            elif buildings[key].z < 50:
-                color = 'b'
-            elif buildings[key].z < 100:
-                color = 'g'
-            elif buildings[key].z < 200:
-                color = 'r'
-            else:
-                color = 'y'
-            
-            buildings[key].plot_footprint(ax, color='k') 
 
-    obs.plot_observers_location(ax, color='k')
-    
-    L = 500
-    ax.set_xlim([obs.x-L, obs.x+L])
-    ax.set_ylim([obs.y-L, obs.y+L])    
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)    
-    
-    ax.set_aspect('equal')
+@app.route('/light_plot')
+def draw_light_plot():
+    fig = plt.figure()
+    #ax = fig.add_subplot(111)
+    ax = fig.add_axes([0,0,1,1])
+
+    summary.plot_light(ax)
+
     fig.set_size_inches(8, 8)
 
-    # post-process for html
-    canvas = FigureCanvas(fig)
-    png_output = StringIO.StringIO()
-    canvas.print_png(png_output)
-    response = make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-    return response 
-
-
-@app.route('/silhouette')
-def draw_silhouette():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    sun.draw(ax)       
-    sil.draw(ax)
-
-    ax.set_ylim([0, 90])
-    ax.set_xlim([-180, 180])
-
-    ax.set_aspect('equal', adjustable='box')
-    fig.set_size_inches(10, 2.5)
 
     # post-process for html
     canvas = FigureCanvas(fig)
@@ -253,14 +195,28 @@ def draw_silhouette():
 @app.route('/inverted_polar_plot')
 def draw_inverted_polar_plot():
     fig = plt.figure()
-    #ax = fig.add_subplot(111)
     ax = fig.add_axes([0,0,1,1])
 
     sil.draw_inverted_polar(ax, color='k')
-    # sun.draw_inverted_polar(ax, color='#ffa700', linewidth=3.0)
+    
 
+    this_year = dt.datetime.today().year
+    dates_to_plot = [
+        dt.datetime(this_year, 3, 20), 
+        dt.datetime(this_year, 6, 21), 
+        dt.datetime(this_year, 12, 22)
+    ]
+    for d in dates_to_plot:
+        sun = SunPath(
+            stepsize=SUN_STEPSIZE, 
+            lat=obs.lat, 
+            lon=obs.lon, 
+            date=d)
+        sun.calculate_path()
+        sun.calculate_visibility(sil)
+        sun.draw_inverted_polar(ax)
+    
     fig.set_size_inches(8, 8)
-
 
     # post-process for html
     canvas = FigureCanvas(fig)
@@ -269,6 +225,71 @@ def draw_inverted_polar_plot():
     response = make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
     return response 
+
+
+# @app.route('/block_map')
+# def draw_block():
+#     fig = plt.figure()
+#     # ax = fig.add_subplot(111)
+#     ax = fig.add_axes([0,0,1,1])
+#     for key in buildings:
+#         if buildings[key].z > obs.z:    # plot only if building is taller than observer
+#             if buildings[key].z < 20:
+#                 color = 'k'
+#             elif buildings[key].z < 50:
+#                 color = 'b'
+#             elif buildings[key].z < 100:
+#                 color = 'g'
+#             elif buildings[key].z < 200:
+#                 color = 'r'
+#             else:
+#                 color = 'y'
+            
+#             buildings[key].plot_footprint(ax, color='k') 
+
+#     obs.plot_observers_location(ax, color='k')
+    
+#     L = 500
+#     ax.set_xlim([obs.x-L, obs.x+L])
+#     ax.set_ylim([obs.y-L, obs.y+L])    
+#     ax.xaxis.set_visible(False)
+#     ax.yaxis.set_visible(False)    
+    
+#     ax.set_aspect('equal')
+#     fig.set_size_inches(8, 8)
+
+#     # post-process for html
+#     canvas = FigureCanvas(fig)
+#     png_output = StringIO.StringIO()
+#     canvas.print_png(png_output)
+#     response = make_response(png_output.getvalue())
+#     response.headers['Content-Type'] = 'image/png'
+#     return response 
+
+
+# @app.route('/silhouette')
+# def draw_silhouette():
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111)
+
+#     sun.draw(ax)       
+#     sil.draw(ax)
+
+#     ax.set_ylim([0, 90])
+#     ax.set_xlim([-180, 180])
+
+#     ax.set_aspect('equal', adjustable='box')
+#     fig.set_size_inches(10, 2.5)
+
+#     # post-process for html
+#     canvas = FigureCanvas(fig)
+#     png_output = StringIO.StringIO()
+#     canvas.print_png(png_output)
+#     response = make_response(png_output.getvalue())
+#     response.headers['Content-Type'] = 'image/png'
+#     return response 
+
+
 
 
 

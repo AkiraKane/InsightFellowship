@@ -10,9 +10,10 @@ DURATION_OF_SUNRISE_SUNSET = 15 # minutes
 
 class SunPath:
     
-    def __init__(self, lat=None, lon=None, date=dt.datetime.today()):
+    def __init__(self, stepsize=1, lat=None, lon=None, date=dt.datetime.today()):
         self.positions = []  # list of tuples (phi, theta)
         self.visible = []
+        self.stepsize = stepsize
         self.lat = lat
         self.lon = lon
         self.date = date
@@ -89,7 +90,7 @@ class SunPath:
             
         u_sun = self.get_sun_vector()
 
-        for time_minutes in range(0, 1440):
+        for time_minutes in range(0, 1440, self.stepsize):
             (u_r, u_theta, u_phi) = \
                 self.get_city_vectors(time_minutes)
 
@@ -118,28 +119,107 @@ class SunPath:
                 cliff_index += 1
             vis = sil.cliffs[cliff_index].theta_L < p[1]
             self.visible.append( vis )
-        return (sum(self.visible), len(self.positions))
+        # return (sum(self.visible), len(self.positions))
         
-    def draw(self, ax, color='#ffa700', deg=True, linewidth=3.0):
-        if deg:
-            phis = []
-            thetas = []
-            for p in self.positions:
-                phis.append(p[0] * 180/np.pi)
-                thetas.append(p[1] * 180/np.pi)
-            ax.plot(phis, thetas, color=color, linewidth=linewidth)
-        else:
-            ax.plot(self.phi_list, self.theta_list, color=color, linewidth=linewidth)
+    # def draw(self, ax, color='#ffa700', deg=True, linewidth=3.0):
+    #     if deg:
+    #         phis = []
+    #         thetas = []
+    #         for p in self.positions:
+    #             phis.append(p[0] * 180/np.pi)
+    #             thetas.append(p[1] * 180/np.pi)
+    #         ax.plot(phis, thetas, color=color, linewidth=linewidth)
+    #     else:
+    #         ax.plot(self.phi_list, self.theta_list, color=color, linewidth=linewidth)
+
+# colors:
+#   almost white: #ffedd2
+#   pastel sun: #ffc469
+#   sunset orange: #f98536
+#   dark pastel sun: #cc9c54
 
 
-    def draw_inverted_polar(self, ax, color='#ffa700', linewidth=3.0):
-        x_list = []
-        y_list = []
-        for p in self.positions:
-            r = np.pi/2 - p[1]
-            x_list.append(-r * np.sin(p[0]))
-            y_list.append(r * np.cos(p[0]))
-        ax.plot(x_list, y_list, color=color, linewidth=linewidth)
+    def draw_inverted_polar(self, ax, 
+        solid_linewidth=6, 
+        dashed_linewidth=1,
+        morning_color='#ffc469',
+        afternoon_color='#f98536'):
+
+        path = self.positions
+        vis = self.visible
+        L = len(path)
+
+        i = 0
+
+        # morning sun
+        while i < L/2:
+            if not vis[i]:
+                x_list = []
+                y_list = []
+                while not vis[i]:                
+                    r = np.pi/2 - path[i][1]
+                    x_list.append(-r * np.sin(path[i][0]))
+                    y_list.append(r * np.cos(path[i][0]))
+                    i += 1
+                    if not i < L/2:
+                        break
+                ax.plot(x_list, y_list, color=morning_color, 
+                    linewidth=dashed_linewidth, linestyle='--')
+            else:
+                x_list = []
+                y_list = []
+                while vis[i]:                
+                    r = np.pi/2 - path[i][1]
+                    x_list.append(-r * np.sin(path[i][0]))
+                    y_list.append(r * np.cos(path[i][0]))
+                    i += 1
+                    if not i < L/2:
+                        break
+                ax.plot(x_list, y_list, color=morning_color, linewidth=solid_linewidth)
+            i += 1
+
+        # afternoon sun
+        while i < L:
+            if not vis[i]:
+                x_list = []
+                y_list = []
+                while not vis[i]:                
+                    r = np.pi/2 - path[i][1]
+                    x_list.append(-r * np.sin(path[i][0]))
+                    y_list.append(r * np.cos(path[i][0]))
+                    i += 1
+                    if not i < L:
+                        break
+                ax.plot(x_list, y_list, color=afternoon_color, 
+                    linewidth=dashed_linewidth, linestyle='--')
+            else:
+                x_list = []
+                y_list = []
+                while vis[i]:                
+                    r = np.pi/2 - path[i][1]
+                    x_list.append(-r * np.sin(path[i][0]))
+                    y_list.append(r * np.cos(path[i][0]))
+                    i += 1
+                    if not i < L:
+                        break
+                ax.plot(x_list, y_list, color=afternoon_color, linewidth=solid_linewidth)
+            i += 1
+
+
+
+        # # morning sun
+        # for p in self.positions[0:L/2]:
+        #     r = np.pi/2 - p[1]
+        #     x_list.append(-r * np.sin(p[0]))
+        #     y_list.append(r * np.cos(p[0]))
+        # ax.plot(x_list, y_list, color='#cc9c54', linewidth=linewidth)
+
+        # # afternoon sun
+        # for p in self.positions[0:L/2]:
+        #     r = np.pi/2 - p[1]
+        #     x_list.append(-r * np.sin(p[0]))
+        #     y_list.append(r * np.cos(p[0]))
+        # ax.plot(x_list, y_list, color='#f98536', linewidth=linewidth)
 
 
 class SunSummary:
@@ -176,24 +256,23 @@ class SunSummary:
             d += one_week
 
 
-    def collect_summary(self, silhouette, observer):
+    def collect_summary(self, silhouette, observer, stepsize):
         for date in self.dates:
-            this_sun = SunPath(lat=observer.lat, lon=observer.lon, date=date)
+            this_sun = SunPath(lat=observer.lat, lon=observer.lon, date=date, stepsize=stepsize)
             this_sun.calculate_path()
             this_sun.calculate_visibility(silhouette)
 
-            total_min = len(this_sun.positions)
-            self.total_sun.append(total_min)
-            self.morning_sun.append(sum(this_sun.visible[:total_min/2]))
-            self.afternoon_sun.append(sum(this_sun.visible[total_min/2:]))
-            self.sunrise.append(any(this_sun.visible[:15]))
-            self.sunset.append(any(this_sun.visible[-15:]))
+            total_steps = len(this_sun.positions)
+            self.total_sun.append(total_steps * this_sun.stepsize)
+            self.morning_sun.append(sum(this_sun.visible[:total_steps/2])  * this_sun.stepsize)
+            self.afternoon_sun.append(sum(this_sun.visible[total_steps/2:])  * this_sun.stepsize)
+            sunset_limit_index = int(15 / this_sun.stepsize)
+            self.sunrise.append(any(this_sun.visible[:sunset_limit_index]))
+            self.sunset.append(any(this_sun.visible[-sunset_limit_index:]))
 
     def plot_light(self, ax):
-        color_total = '#ffc100'
-        color_morning = '#ff9a00'
-        color_afternoon = '#ff5a00'
-        color_sunset = '#b60505'
+        color_morning = '#ffc469'
+        color_afternoon = '#f98536'
         dashed_style = ':'
         height_sunset_line = 500
         height_of_plot = 600

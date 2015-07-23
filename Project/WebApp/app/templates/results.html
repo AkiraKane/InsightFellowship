@@ -107,10 +107,10 @@
     }
 
     #input_tab { width: 400px;}
-    
+
     #summary_tab { width: 700px;}
     #fisheye_tab { width: 500px;}
-    #map_tab { width: 500px;}
+    #map_tab { width: 550px;}
 
     /* Input textboxes */
     .input-address { width: 245px;}
@@ -190,7 +190,7 @@
 
       </div> <!-- /tab-conent -->
     </div> <!-- /content -->
-  </div> <!-- /col-sm-4 -->
+  </div> <!-- /col-md-4 -->
 
 <div class="col-md-4 margin"></div>
 
@@ -211,16 +211,14 @@
           <p>Fisheye view of the sky</p>
           <img src="./inverted_polar_plot" height="450">
       </div>
-        <div class="tab-pane" id="map_tab">
+        <div class="tab-pane active" id="map_tab">
           <p>Map of the neighborhood</p>
           <!-- <img src="./block_map" height="450"> -->
-          <div class="container">
-            <div id="map" style="width: 400px; height: 400px;"></div> 
-          </div>
+            <div id="map" style="width: 500px; height: 500px;"></div> 
         </div>
       </div> <!-- /tab-conent -->
     </div>  <!-- /content -->
-  </div>  <!-- /col-sm-3 -->
+  </div>  <!-- /col-md-4 -->
 
 
 
@@ -237,6 +235,7 @@
 
 
     <script type="text/javascript"> 
+       // var address = '{{lat}}, {{lon}}';
        var address = '{{lat}}, {{lon}}';
 
        var map = new google.maps.Map(document.getElementById('map'), { 

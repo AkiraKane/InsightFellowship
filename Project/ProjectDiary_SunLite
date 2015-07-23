@@ -1279,15 +1279,15 @@ To do list for today:
 	--OK-- 1. Add box around the input fields (use tabs)
 	--OK-- 1a. Add placeholders to show earlier search results
 	2. Add contact + misc
-	3. Try analyzing in 5 min resolution, instead of 1 min
+	--OK-- 3. Try analyzing in 5 min resolution, instead of 1 min
 	4. Make plots pretty
 	--OK-- 5. Make the design pretty
-	5. Add sun paths to fisheye
-	6. Fix google map
-	6. Upload to AWS
+	--OK-- 5. Add sun paths to fisheye
+	--OK-- 6. Fix google map
+	7. Upload to AWS
 	
 Further work:
-	- Implement algorithm to show
+	- Implement algorithm to take all blocks into account
 
 
 Currently I solved sequential appearance of the objects by creating different htmls:
