@@ -62,7 +62,13 @@ class Observer:
             match = re.search(r'(\d+)', floor)
             if match:
                 self.z = float(floor) * 3   # 1 floor =approx= 3 meters
-            
+
+    def get_altitude(self, floor):
+        if floor:
+            match = re.search(r'(\d+)', floor)
+            if match:
+                self.z = float(floor) * 3   # 1 floor =approx= 3 meters
+
 
     # convert (lon,lat) to (x,y) on the local map
     def convert_to_cartesian(self):
@@ -71,6 +77,11 @@ class Observer:
         self.x = self.planet_radius * cos_mean_lat * (self.lon - self.city_lon)* deg2rad
         self.y = self.planet_radius * (self.lat - self.city_lat)* deg2rad
     
+    def convert_to_geographical(self):
+        deg2rad = np.pi/180
+        cos_mean_lat = np.cos(self.city_lat * deg2rad)
+        self.lon = self.city_lon + self.x / self.planet_radius / cos_mean_lat / deg2rad
+        self.lat = self.city_lat + self.y / self.planet_radius / deg2rad
 
     # finds the block the Node(x,y) coordinates are in
     # (blocks are indexed by (x_index, y_index), starting from (0,0) )

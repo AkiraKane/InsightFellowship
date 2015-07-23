@@ -10,6 +10,8 @@
 
     <title>SunnyMinutes</title>
 
+    <script src="http://maps.google.com/maps/api/js?sensor=false" 
+           type="text/javascript"></script> 
     <!-- Bootstrap core CSS -->
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
 
@@ -104,11 +106,6 @@
     <h2>Location</h2>
       <label for="Address">Address:</label>
       <input type="text" id="Address" name='Address' placeholder="e.g. Times Square">
-      (in Manhattan)
-      <br>
-      <label for="Floor">Floor number:</label>
-      <input type="text" id="Floor" name='Floor' placeholder="e.g. 17">
-      <br>
       <button type="submit" class="btn btn-default btn-sm">Show</button>
     </div> 
   </form>
@@ -124,6 +121,9 @@
 
   <form  action="/results" method="GET">
     <div class="form-group">
+      <label for="Floor">Floor number:</label>
+      <input type="text" id="Floor" name='Floor' placeholder="17">
+      <br>
       <button type="submit" class="btn btn-default btn-lg">Calculate</button>
     </div>
   </form>
@@ -136,16 +136,19 @@
 
     <div id="content">
         <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
-            <li class="active"><a href="#map" data-toggle="tab">Map</a></li>
+            <li class="active"><a href="#map_tab" data-toggle="tab">Map</a></li>
             <li><a href="#fisheye" data-toggle="tab">Fisheye</a></li>
             <li><a href="#year" data-toggle="tab">Year</a></li>
 
         </ul>
         <div id="my-tab-content" class="tab-content">
-            <div class="tab-pane active" id="map">
+            <div class="tab-pane active" id="map_tab">
                 <h2>Map</h2>
                 <p>Map of the neighborhood</p>
-                <img src="./block_map" height="450">
+                <!-- <img src="./block_map" height="450"> -->
+                <div class="container">
+                  <div id="map" style="width: 400px; height: 400px;"></div> 
+                </div>
             </div>
             <div class="tab-pane" id="fisheye">
                 <h2>Fisheye</h2>
@@ -155,7 +158,7 @@
             <div class="tab-pane" id="year">
                 <h2>Year</h2>
                 <p>Summary of the year</p>
-                
+                <img src="./light_plot" width="450">
             </div>
 
         </div>
@@ -175,6 +178,33 @@
           $('#tabs').tab();
       });
     </script>  
+
+    <script type="text/javascript"> 
+       var address = '{{lat}}, {{lon}}';
+
+       var map = new google.maps.Map(document.getElementById('map'), { 
+           mapTypeId: google.maps.MapTypeId.TERRAIN,
+           zoom: 16
+       });
+
+       var geocoder = new google.maps.Geocoder();
+
+       geocoder.geocode({
+          'address': address
+       }, 
+       function(results, status) {
+          if(status == google.maps.GeocoderStatus.OK) {
+             new google.maps.Marker({
+                position: results[0].geometry.location,
+                map: map
+             });
+             map.setCenter(results[0].geometry.location);
+          }
+          else {
+             // Google couldn't geocode this request. Handle appropriately.
+          }
+       });
+     </script> 
     
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>

@@ -29,9 +29,9 @@ ZOOM_SIZE_PX = 400
 #  declare global instances
 obs = Observer()
 sil = Silhouette()
-sun = SunPath()
+# sun = SunPath()
+summary = SunSummary()
 buildings = {}
-# building_at_address = Building()
 x_grid = None
 y_grid = None
 
@@ -48,13 +48,12 @@ def start():
 @app.route('/zoom')
 def zoom():
     address = request.args.get('Address')
-    floor = request.args.get('Floor')
-
+    
     if address:
         address = address + ' New York City'
     else: 
         address = DEFAULT_ADDRESS
-    obs.get_geocoordinates(address, floor)
+    obs.get_geocoordinates(address, floor='0')
     obs.convert_to_cartesian()
     obs.find_my_block(x_grid, y_grid)
 
@@ -68,8 +67,7 @@ def zoom():
         buildings.update(buildings_in_observers_block)
     # block is empty, fall back to default address
     else:
-        address = DEFAULT_ADDRESS
-        obs.get_geocoordinates(address, floor='0')
+        obs.get_geocoordinates(DEFAULT_ADDRESS, floor='0')
         obs.convert_to_cartesian()
         obs.find_my_block(x_grid, y_grid)
         buildings.clear()
@@ -92,10 +90,14 @@ def zoom_after_click():
     dy = -(click_y / ZOOM_SIZE_PX - 0.5) * ZOOM_SIZE
     obs.x = obs.x + dx
     obs.y = obs.y + dy
+    obs.convert_to_geographical()
     return render_template('show_calculate_button.html')
 
 @app.route('/results')
 def show_results():
+    floor = request.args.get('Floor')
+    obs.get_altitude(floor)
+
     # add roofs of the buildigns to sil
     sil.cliffs = Silhouette().cliffs
     for key in buildings:
@@ -104,22 +106,39 @@ def show_results():
             for tup in roofs:
                 sil.add_roof( Roof(tup) )
     
+    summary.clear()
+    summary.collect_summary(sil, obs)
 
-    sun.get_date(DEFAULT_DAY)
-    sun.lat = obs.lat
-    sun.lon = obs.lon
+    # sun.get_date(DEFAULT_DAY)
+    # sun.lat = obs.lat
+    # sun.lon = obs.lon
 
-    sun.positions = []
-    sun.calculate_path()
+    # sun.positions = []
+    # sun.calculate_path()
 
-    sun.visible = []
-    v = sun.calculate_visibility(sil)
-    # message = str(v[0]) + ' min sunny / ' + str(v[1]) + ' min total'
+    # sun.visible = []
+    # v = sun.calculate_visibility(sil)
+    # # message = str(v[0]) + ' min sunny / ' + str(v[1]) + ' min total'
 
-    return render_template("results.html")
+    return render_template("results.html", lat=obs.lat, lon=obs.lon)
     
+@app.route('/light_plot')
+def draw_light_plot():
+    fig = plt.figure()
+    ax = fig.add_axes([0.2,0,0.8,1])
+
+    summary.plot_light(ax)
+
+    fig.set_size_inches(5, 3)
 
 
+    # post-process for html
+    canvas = FigureCanvas(fig)
+    png_output = StringIO.StringIO()
+    canvas.print_png(png_output)
+    response = make_response(png_output.getvalue())
+    response.headers['Content-Type'] = 'image/png'
+    return response 
 
 @app.route('/building_zoom')
 def draw_building_zoom():
@@ -220,7 +239,7 @@ def draw_inverted_polar_plot():
     ax = fig.add_axes([0,0,1,1])
 
     sil.draw_inverted_polar(ax, color='k')
-    sun.draw_inverted_polar(ax, color='#ffa700', linewidth=3.0)
+    # sun.draw_inverted_polar(ax, color='#ffa700', linewidth=3.0)
 
     fig.set_size_inches(8, 8)
 

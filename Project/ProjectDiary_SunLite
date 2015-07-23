@@ -1245,12 +1245,12 @@ Day 14 - Jul 22
 ---------------
 
 To do list for today:
-	1. Omit the observer's building from the silhouette
-	1a. Get default if Address is outside Manhattan
-	2. Add a filter to the silhouette, depending on the orinetaion
-	3. Exchange the matplotlib plot with small google map
-	4. Calculate year around summary
-	5. Add year around summary
+	!no 1. Omit the observer's building from the silhouette
+	--OK-- 1a. Get default if Address is outside Manhattan
+	!no 2. Add a filter to the silhouette, depending on the orinetaion
+	--OK-- 3. Exchange the matplotlib plot with small google map
+	--OK-- 4. Calculate year around summary
+	--OK-- 5. Add year around summary
 	6. Add diffuse light
 	7. Add contact + misc
 
@@ -1260,4 +1260,11 @@ Further work:
 	- Implement algorithm to take all blocks into account
 
 
+Year around summary:
+	For each week:
+		- sunrise: y/n
+		- morning sun
+		- afternoon sun
+		- sunset: y/n
+		- time between sunrise and sunset
 
