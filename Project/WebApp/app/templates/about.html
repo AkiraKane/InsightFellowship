@@ -8,7 +8,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>SunnyMinutes</title>
+    <title>SunnyMinutes - About</title>
 
     <script src="http://maps.google.com/maps/api/js?sensor=false" 
            type="text/javascript"></script> 
@@ -85,7 +85,7 @@
     }
 
     /* Tab Content */
-    .tab-pane {
+    .tab-pane{
       background: #fff9f0;
       box-shadow: 0 0 4px rgba(0,0,0,.4);
       border-radius: 0;
@@ -108,13 +108,6 @@
 
     #input_tab { width: 400px;}
 
-    #summary_tab { width: 700px;}
-    #fisheye_tab { width: 500px;}
-    #map_tab { width: 550px;}
-
-    /* Input textboxes */
-    .input-address { width: 245px;}
-    .input-floor { width: 55px;}
 
 
 
@@ -156,71 +149,78 @@
   <div class="col-md-4 margin">
     <div id="content">
       <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
-          <li class="active"><a href="#input_tab" data-toggle="tab">Location</a></li>
+          <li class="active"><a href="#summary_tab" data-toggle="tab">Summary</a></li>
+          <li ><a href="#data_tab" data-toggle="tab">Data</a></li>
+          <li ><a href="#methods_tab" data-toggle="tab">Methods</a></li>
       </ul>
       <div id="my-tab-content" class="tab-content">
-          <div class="tab-pane active" id="input_tab">
-            
-            <form  action="/zoom" method="GET">
-              <div class="form-group">
-                <label for="Address">Address:</label>
-                <input type="text" id="Address" name='Address' placeholder="{{address_placeholder}}" class="search-query input-address">
-                <button type="submit" class="btn btn-default btn-sm">Show</button>
-              </div> 
-            </form>
+          
+          <div class="tab-pane active" id="summary_tab">
+            <h3></h3>
+            <p>I created SunnyMinutes in July 2015 as a data science project during the first Healthcare Data Science program organized by Insight Data in Boston, MA.
+            </p>
+            <h3>Tools</h3>
+            <p>
+            Processing: Python 2.7 <br>
+            Storage: mySQL, pysql <br>
+            Visualization: matplotlib <br>
+            Web layout: flask, Bootstrap <br>
+            </p>
+            <h3>Source</h3>
+            <p>
+            The entire source code can be downloaded from GitHub.
+            </p>
+          </div>
 
-            <form  action="/zoom_adjust" method="GET">
-              <div class="form-group">
-                <label for="zoom">Click at exact location on the map below</label>
-                <input type="image" name="zoom" src="/building_zoom" alt="Submit" width= 350 />
-                <br>
-              </div>
-            </form>
-            <form  action="/results" method="GET">
-              <div class="form-group">
-                <label for="Floor">Floor number:</label>
-                <input type="text" id="Floor" name='Floor' placeholder="{{floor_placeholder}}" class="search-query input-floor">
-                <br>
-                <button type="submit" class="btn btn-default btn-lg">Calculate</button>
-              </div>
-            </form>
+          <div class="tab-pane" id="data_tab">
+            <h3> Buildings </h3> 
+            <p> 
+            I obtained the geometries of the buildings of Manhattan from OpenStreetMap. Each building (or building part) is represented by an ordered list of nodes (latitude, longitude), and a single hight value.
+            </p>
+            <br>
 
-          </div> <!-- /tab-pane -->
+            <h3> Sun light </h3> 
+            <p>
+            I implemented the astronomical equation to calculate the equatorial coordinates of the sun.
+            </p>
+          </div>
+          
+          <div class="tab-pane" id="methods_tab">
+            <h3> Data aquisition </h3>
+            <p>
+            I called OpenStreetMap's Overpass API with a bounding box containing Manhattan (whose coordinates I read off Google Maps) and filters for  "building", and "building:part" tags.
+            </p>
+            <p>
+            I processed the XML file (size ~100MB) with regular expressions, and extraced the lists of nodes (lat, lon) and height values for each building. I converted the (lat, lon) coordinates to Cartesian coordinates using the assumption that Manhattan is small enough to be taken as flat.
+            </p>
+            <p>
+            I grouped buildings into 500 m x 500 m blocks.
+            </p>
+            <br>
+
+            <h3> Processing </h3>
+            <p>
+            From the address I find the geocoordinates using the geocoding package. I determine which block the observer is in, and select all buildings in there and all buildings the neighboring eight blocks too.
+            </p>
+            <p>
+            From the floor number, I estimate the altitude of the observer assuming three-meter-high floors.
+            </p>
+            <p>
+            For each building, I determine the (phi, theta) coordinates of their nodes on the obeservers view with trigonometric functions.
+            </p>
+            <p>
+            I build a skyline view out of the buildings that are visible from the observer's location, and store only this skyline in the memory.
+            </p>
+            <p>
+            For each week of the year, and each 5 min interval of the day, I determine the sun's position on the observer's sky, and register the times, when the sun is visible, and when it's blocked by the skyline.
+            </p>
+          </div>
+
 
 
       </div> <!-- /tab-conent -->
     </div> <!-- /content -->
   </div> <!-- /col-md-4 -->
-
-<div class="col-md-4 margin"></div>
-
-<!-- result tabs -->
-  <div class="col-md-4 margin">
-    <div id="content">
-      <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
-        <li class="active"><a href="#summary_tab" data-toggle="tab">Summary</a></li>
-        <li><a href="#fisheye_tab" data-toggle="tab">Sky</a></li>
-        <li><a href="#map_tab" data-toggle="tab">Map</a></li>
-      </ul>
-      <div id="my-tab-content" class="tab-content">
-        <div class="tab-pane active" id="summary_tab">
-          <p>Summary of the year</p>
-          <img src="./light_plot" width="450">
-        </div>
-        <div class="tab-pane" id="fisheye_tab">
-          <p>Fisheye view of the sky</p>
-          <img src="./inverted_polar_plot" height="450">
-      </div>
-        <div class="tab-pane active" id="map_tab">
-          <p>Map of the neighborhood</p>
-          <!-- <img src="./block_map" height="450"> -->
-            <div id="map" style="width: 500px; height: 500px;"></div> 
-        </div>
-      </div> <!-- /tab-conent -->
-    </div>  <!-- /content -->
-  </div>  <!-- /col-md-4 -->
-
-
 
 </div> <!-- /row -->
 </div> <!-- container -->
@@ -234,33 +234,6 @@
     </script>  
 
 
-    <script type="text/javascript"> 
-       // var address = '{{lat}}, {{lon}}';
-       var address = '{{lat}}, {{lon}}';
-
-       var map = new google.maps.Map(document.getElementById('map'), { 
-           mapTypeId: google.maps.MapTypeId.TERRAIN,
-           zoom: 16
-       });
-
-       var geocoder = new google.maps.Geocoder();
-
-       geocoder.geocode({
-          'address': address
-       }, 
-       function(results, status) {
-          if(status == google.maps.GeocoderStatus.OK) {
-             new google.maps.Marker({
-                position: results[0].geometry.location,
-                map: map
-             });
-             map.setCenter(results[0].geometry.location);
-          }
-          else {
-             // Google couldn't geocode this request. Handle appropriately.
-          }
-       });
-     </script> 
     
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>

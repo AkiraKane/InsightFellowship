@@ -51,6 +51,15 @@ def start():
     return render_template('start.html', 
         address_placeholder=address_placeholder)
 
+@app.route('/about_page')
+def go_to_about_page():
+    return render_template('about.html')
+
+@app.route('/contact_page')
+def go_to_contact_page():
+    return render_template('contact.html')
+
+
 @app.route('/zoom')
 def zoom():
     address = request.args.get('Address')

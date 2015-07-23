@@ -1278,7 +1278,7 @@ To do list for today:
 	--OK-- 0. Change order of results tabs -> (Summary, Fisheye, Map)
 	--OK-- 1. Add box around the input fields (use tabs)
 	--OK-- 1a. Add placeholders to show earlier search results
-	2. Add contact + misc
+	--OK-- 2. Add contact + misc
 	--OK-- 3. Try analyzing in 5 min resolution, instead of 1 min
 	4. Make plots pretty
 	--OK-- 5. Make the design pretty
