@@ -10,6 +10,8 @@
 
     <title>SunnyMinutes</title>
 
+    <script src="http://maps.google.com/maps/api/js?sensor=false" 
+           type="text/javascript"></script> 
     <!-- Bootstrap core CSS -->
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
 
@@ -26,39 +28,103 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+
   <style>
+
+/*colors:
+  almost white: #ffedd2
+  pastel sun: #ffc469
+  sunset orange: #f98536
+  dark pastel sun: #cc9c54
+*/
       
-      body {
-          margin: 5px;
-          background: #A6A6A6
-      }
+    body {
+      margin: 5px;
+      background: #ffedd2
+    }
 
-      /* Tab Navigation */
-      .nav-tabs {
-          margin: 0;
-          padding: 0;
-          border: 0;    
-      }
-      .nav-tabs > li > a {
-          background: #DADADA;
-          border-radius: 0;
-          box-shadow: inset 0 -8px 7px -9px rgba(0,0,0,.4),-2px -2px 5px -2px rgba(0,0,0,.4);
-      }
-      .nav-tabs > li.active > a,
-      .nav-tabs > li.active > a:hover {
-          background: #F5F5F5;
-          box-shadow: inset 0 0 0 0 rgba(0,0,0,.4),-2px -3px 5px -2px rgba(0,0,0,.4);
-      }
 
-      /* Tab Content */
-      .tab-pane {
-          background: #F5F5F5;
-          box-shadow: 0 0 4px rgba(0,0,0,.4);
-          border-radius: 0;
-          text-align: left;
-          padding: 15px;
-          width: 500px;
-      }
+    /* Navbar */
+
+    .navbar,
+    .navbar-toggle {
+      background: #ffc469;
+    }
+   .nav > li > a:hover,
+   .nav > li > a:focus {
+      text-decoration: none;
+      background-color: #f98536;
+    }
+
+    .nav li a,
+    .navbar-brand{
+      color: #505050;
+    }
+
+    .nav > li > a:hover,
+    .navbar-brand:hover{
+      color: #FFFFFF;
+    }
+
+    /* Tab Navigation */
+    .nav-tabs {
+      margin: 0;
+      padding: 0;
+      border: 0;    
+    }
+    .nav-tabs > li > a {
+      /*background: #DADADA;*/
+      background: #fff9f0;
+      border-radius: 0;
+      box-shadow: inset 0 -8px 7px -9px rgba(0,0,0,.4),-2px -2px 5px -2px rgba(0,0,0,.4);
+    }
+    .nav-tabs > li.active > a,
+    .nav-tabs > li.active > a:hover {
+      background: #fff9f0;
+      box-shadow: inset 0 0 0 0 rgba(0,0,0,.4),-2px -3px 5px -2px rgba(0,0,0,.4);
+    }
+
+    /* Tab Content */
+    .tab-pane {
+      background: #fff9f0;
+      box-shadow: 0 0 4px rgba(0,0,0,.4);
+      border-radius: 0;
+      text-align: left;
+      padding: 15px;
+      width: 500px;
+    }
+
+    /* Buttons */
+    .btn-default:hover{
+      background: #f98536;
+      color: #ffffff;
+    }
+
+    /* Table positions and margins*/
+    .margin {
+      margin-left:0px;
+      margin-right:50px;
+    }
+
+    #input_tab {
+        width: 400px;
+    }
+
+    #summary_tab {
+        width: 700px;
+    }
+
+    #fisheye_tab {
+        width: 500px;
+    }
+
+    #map_tab {
+        width: 500px;
+    }
+
+    /* Input textboxes */
+    .input-address { width: 245px;}
+    .input-floor { width: 55px;}
 
 
 
@@ -68,7 +134,7 @@
 
   <body>
 
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -95,69 +161,44 @@
 <div class="container">
 <div class="row">
 
-<div class="col-sm-4">
-  
-  <form  action="/zoom" method="GET">
-    <div class="form-group">
 
-    
-    <h2>Location</h2>
-      <label for="Address">Address:</label>
-      <input type="text" id="Address" name='Address' placeholder="e.g. Times Square">
-      <button type="submit" class="btn btn-default btn-sm">Show</button>
-    </div> 
-  </form>
-
-
-  <form  action="/zoom_adjust" method="GET">
-    <div class="form-group">
-      <label for="zoom">Click at exact location on the map below</label>
-      <input type="image" name="zoom" src="/building_zoom" alt="Submit" height= 400 />
-      <br>
-    </div>
-  </form>
-
-
-
-</div> <!-- col-sm-4 -->
-
-
-<!-- 
-<div class="col-sm-3">
-
+<!-- Input tab -->
+  <div class="col-md-4 margin">
     <div id="content">
-        <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
-            <li class="active"><a href="#map" data-toggle="tab">Map</a></li>
-            <li><a href="#fisheye" data-toggle="tab">Fisheye</a></li>
-            <li><a href="#year" data-toggle="tab">Year</a></li>
+      <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+          <li class="active"><a href="#input_tab" data-toggle="tab">Location</a></li>
+      </ul>
+      <div id="my-tab-content" class="tab-content">
+          <div class="tab-pane active" id="input_tab">
+            
+            <form  action="/zoom" method="GET">
+              <div class="form-group">
+                <label for="Address">Address:</label>
+                <input type="text" id="Address" name='Address' placeholder="{{address_placeholder}}" class="search-query input-address">
+                <button type="submit" class="btn btn-default btn-sm">Show</button>
+              </div> 
+            </form>
 
-        </ul>
-        <div id="my-tab-content" class="tab-content">
-            <div class="tab-pane active" id="map">
-                <h2>Map</h2>
-                <p>Map of the neighborhood</p>
-                <img src="./block_map" height="450">
-            </div>
-            <div class="tab-pane" id="fisheye">
-                <h2>Fisheye</h2>
-                <p>Fisheye view of the sky</p>
-                <img src="./inverted_polar_plot" height="450">
-            </div>
-            <div class="tab-pane" id="year">
-                <h2>Year</h2>
-                <p>Summary of the year</p>
-                
-            </div>
+            <form  action="/zoom_adjust" method="GET">
+              <div class="form-group">
+                <label for="zoom">Click at exact location on the map below</label>
+                <input type="image" name="zoom" src="/building_zoom" alt="Submit" width= 350 />
+                <br>
+              </div>
+            </form>
 
-        </div>
-      </div>
-    </div>
-   -->
+          </div> <!-- /tab-pane -->
 
 
-</div> <!-- col-sm-3 -->
-</div> <!-- row -->
+      </div> <!-- /tab-conent -->
+    </div> <!-- /content -->
+  </div> <!-- /col-sm-4 -->
+
+<div class="col-md-4 margin"></div>
+
+</div> <!-- /row -->
 </div> <!-- container -->
+
 
 
 
@@ -166,12 +207,36 @@
           $('#tabs').tab();
       });
     </script>  
+
+    <script type="text/javascript"> 
+       var address = '{{lat}}, {{lon}}';
+
+       var map = new google.maps.Map(document.getElementById('map'), { 
+           mapTypeId: google.maps.MapTypeId.TERRAIN,
+           zoom: 16
+       });
+
+       var geocoder = new google.maps.Geocoder();
+
+       geocoder.geocode({
+          'address': address
+       }, 
+       function(results, status) {
+          if(status == google.maps.GeocoderStatus.OK) {
+             new google.maps.Marker({
+                position: results[0].geometry.location,
+                map: map
+             });
+             map.setCenter(results[0].geometry.location);
+          }
+          else {
+             // Google couldn't geocode this request. Handle appropriately.
+          }
+       });
+     </script> 
     
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
-
-  </div> <!-- /.container-->
-
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -180,5 +245,6 @@
     <script src="../../dist/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+
   </body>
 </html>

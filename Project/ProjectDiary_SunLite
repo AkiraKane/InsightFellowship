@@ -1268,3 +1268,39 @@ Year around summary:
 		- sunset: y/n
 		- time between sunrise and sunset
 
+
+
+---------------
+Day 15 - Jul 23
+---------------
+
+To do list for today:
+	--OK-- 0. Change order of results tabs -> (Summary, Fisheye, Map)
+	--OK-- 1. Add box around the input fields (use tabs)
+	--OK-- 1a. Add placeholders to show earlier search results
+	2. Add contact + misc
+	3. Try analyzing in 5 min resolution, instead of 1 min
+	4. Make plots pretty
+	--OK-- 5. Make the design pretty
+	5. Add sun paths to fisheye
+	6. Fix google map
+	6. Upload to AWS
+	
+Further work:
+	- Implement algorithm to show
+
+
+Currently I solved sequential appearance of the objects by creating different htmls:
+	start.html
+	zoom_to_address.html
+	show_calculate_button.html
+	reusults.html
+
+The last (results.html) contains all components.
+I'll proceed with changing the design by 
+	1. changing result.html, 
+	2. until I'm satisfied with the look, (without running the server)
+	3. then create copies, and delete the components I don't need to appear on previous htlms.
+
+
+

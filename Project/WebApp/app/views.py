@@ -22,18 +22,19 @@ from sun import *
 from observer import *
 
 DEFAULT_DAY = '7/31'
-DEFAULT_ADDRESS = 'Columbus Circle, New York City'
+DEFAULT_ADDRESS = 'Columbus Circle'
 ZOOM_SIZE = 200
-ZOOM_SIZE_PX = 400
+ZOOM_SIZE_PX = 350
 
 #  declare global instances
 obs = Observer()
 sil = Silhouette()
-# sun = SunPath()
 summary = SunSummary()
 buildings = {}
 x_grid = None
 y_grid = None
+address_placeholder = 'e.g. One Times Square'
+floor_placeholder = 'e.g. 19'
 
 con = mdb.connect('localhost', 'root', '123', 'Manhattan_buildings')
 
@@ -43,16 +44,22 @@ obs.load_basic_geography(con)
 
 @app.route('/')
 def start():
-    return render_template('start.html')
+    exec 'address_placeholder = "e.g. One Times Square"' in globals()
+
+    return render_template('start.html', 
+        address_placeholder=address_placeholder)
 
 @app.route('/zoom')
 def zoom():
     address = request.args.get('Address')
     
     if address:
-        address = address + ' New York City'
+        address = address + ', Manhattan'
     else: 
         address = DEFAULT_ADDRESS
+
+    exec 'address_placeholder = "' + address + '"' in globals()
+
     obs.get_geocoordinates(address, floor='0')
     obs.convert_to_cartesian()
     obs.find_my_block(x_grid, y_grid)
@@ -80,7 +87,8 @@ def zoom():
             append_buildings_in_block(con, x_id_list[i], y_id_list[i])\
         )
 
-    return render_template('zoom_to_address.html')
+    return render_template('zoom_to_address.html', 
+        address_placeholder=address_placeholder)
 
 @app.route('/zoom_adjust')
 def zoom_after_click():
@@ -91,12 +99,19 @@ def zoom_after_click():
     obs.x = obs.x + dx
     obs.y = obs.y + dy
     obs.convert_to_geographical()
-    return render_template('show_calculate_button.html')
+
+    exec 'floor_placeholder = "e.g. 19"' in globals()
+    return render_template('show_calculate_button.html', 
+        address_placeholder=address_placeholder, 
+        floor_placeholder=floor_placeholder)
 
 @app.route('/results')
 def show_results():
     floor = request.args.get('Floor')
-    obs.get_altitude(floor)
+
+    if obs.get_altitude(floor):
+        exec 'floor_placeholder = "' + str(int(floor)) + '"' in globals()
+
 
     # add roofs of the buildigns to sil
     sil.cliffs = Silhouette().cliffs
@@ -120,12 +135,15 @@ def show_results():
     # v = sun.calculate_visibility(sil)
     # # message = str(v[0]) + ' min sunny / ' + str(v[1]) + ' min total'
 
-    return render_template("results.html", lat=obs.lat, lon=obs.lon)
+    return render_template("results.html", lat=obs.lat, lon=obs.lon, 
+        address_placeholder=address_placeholder, 
+        floor_placeholder=floor_placeholder)
     
+
 @app.route('/light_plot')
 def draw_light_plot():
     fig = plt.figure()
-    ax = fig.add_axes([0.2,0,0.8,1])
+    ax = fig.add_axes([0,0,1,1])
 
     summary.plot_light(ax)
 

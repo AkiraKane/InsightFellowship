@@ -68,6 +68,9 @@ class Observer:
             match = re.search(r'(\d+)', floor)
             if match:
                 self.z = float(floor) * 3   # 1 floor =approx= 3 meters
+            return True
+        else:
+            return False
 
 
     # convert (lon,lat) to (x,y) on the local map
